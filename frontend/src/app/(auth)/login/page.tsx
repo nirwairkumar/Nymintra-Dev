@@ -87,7 +87,7 @@ export default function LoginPage() {
                                 <FormItem>
                                     <FormLabel className="text-foreground">Email Address</FormLabel>
                                     <FormControl>
-                                        <Input type="email" placeholder="e.g. rahul@example.com" {...field} className="h-12 bg-background" />
+                                        <Input type="email" placeholder="e.g. rahul@example.com" {...field} className="h-12 bg-background" suppressHydrationWarning />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -103,7 +103,7 @@ export default function LoginPage() {
                                         <Link href="#" className="text-xs text-primary hover:underline">Forgot password?</Link>
                                     </FormLabel>
                                     <FormControl>
-                                        <Input type="password" placeholder="Enter password" {...field} className="h-12 bg-background" />
+                                        <Input type="password" placeholder="Enter password" {...field} className="h-12 bg-background" suppressHydrationWarning />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -113,6 +113,7 @@ export default function LoginPage() {
                             type="submit"
                             className="w-full h-12 text-md font-medium bg-primary hover:bg-primary/90 text-primary-foreground transition-all shadow-md"
                             disabled={loading}
+                            suppressHydrationWarning
                         >
                             {loading ? "Signing in..." : "Sign In"}
                         </Button>

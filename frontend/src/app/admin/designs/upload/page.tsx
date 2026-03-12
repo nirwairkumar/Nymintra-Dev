@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useState, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -17,10 +17,15 @@ const CATEGORIES = [
     { id: "corporate", label: "Corporate" },
 ];
 
-export default function AdminUploadCard() {
+function AdminDesignForm() {
     const router = useRouter();
+    const searchParams = useSearchParams();
+    const editId = searchParams.get("edit");
+    const isEditMode = !!editId;
+
     const [step, setStep] = useState(1);
     const [loading, setLoading] = useState(false);
+    const [fetching, setFetching] = useState(isEditMode);
     const [uploadingImages, setUploadingImages] = useState(false);
 
     // Form State
@@ -34,11 +39,54 @@ export default function AdminUploadCard() {
         available_stock: "1000",
         print_price: "0",
         print_price_unit: "100",
-        print_colors: "", // We'll manage this as a comma-separated string in the input for simplicity
+        print_colors: "",
+        style: "Traditional",
+        custom_style: "",
+        orientation: "Portrait",
+        supported_langs: ["EN"],
     });
 
     const [imageUrls, setImageUrls] = useState<string[]>([]);
     const [previews, setPreviews] = useState<string[]>([]);
+
+    useEffect(() => {
+        if (isEditMode) {
+            fetchDesign();
+        }
+    }, [editId]);
+
+    const fetchDesign = async () => {
+        try {
+            const res = await api.get(`/designs/by-id/${editId}`);
+            const design = res.data;
+
+            // Map design data to form state
+            setFormData({
+                name: design.name,
+                slug: design.slug,
+                categories: design.categories || [],
+                base_price: design.base_price.toString(),
+                min_quantity: design.min_quantity.toString(),
+                description: design.description || "",
+                available_stock: design.available_stock.toString(),
+                print_price: design.print_price.toString(),
+                print_price_unit: (design.print_price_unit || 100).toString(),
+                print_colors: design.print_colors ? design.print_colors.join(", ") : "",
+                style: ["Traditional", "Modern", "Floral", "Minimalist"].includes(design.style) ? design.style : "Other",
+                custom_style: ["Traditional", "Modern", "Floral", "Minimalist"].includes(design.style) ? "" : design.style,
+                orientation: design.orientation || "Portrait",
+                supported_langs: design.supported_langs || ["EN"],
+            });
+
+            setImageUrls(design.image_urls || [design.thumbnail_url].filter(Boolean));
+            setPreviews(design.image_urls || [design.thumbnail_url].filter(Boolean));
+        } catch (err) {
+            console.error("Failed to fetch design", err);
+            alert("Failed to load design for editing");
+        } finally {
+            setFetching(false);
+        }
+    };
 
     const handleNext = () => setStep(step + 1);
     const handleBack = () => setStep(step - 1);
@@ -55,7 +103,7 @@ export default function AdminUploadCard() {
         setFormData({
             ...formData,
             name,
-            slug: generateSlug(name)
+            slug: isEditMode ? formData.slug : generateSlug(name) // Don't auto-change slug in edit mode
         });
     };
 
@@ -65,6 +113,15 @@ export default function AdminUploadCard() {
                 ? prev.categories.filter(id => id !== catId)
                 : [...prev.categories, catId];
             return { ...prev, categories };
+        });
+    };
+
+    const toggleLanguage = (langId: string) => {
+        setFormData(prev => {
+            const supported_langs = prev.supported_langs.includes(langId)
+                ? prev.supported_langs.filter(id => id !== langId)
+                : [...prev.supported_langs, langId];
+            return { ...prev, supported_langs };
         });
     };
 
@@ -85,8 +142,7 @@ export default function AdminUploadCard() {
                 newUrls.push(res.data.url);
             }
             setImageUrls(prev => [...prev, ...newUrls]);
-            // Also update previews
-            setPreviews(prev => [...prev, ...files.map(f => URL.createObjectURL(f))]);
+            setPreviews(prev => [...prev, ...newUrls]); // Use URLs for previews too to stay consistent
         } catch (err: any) {
             const msg = err.response?.data?.detail || "Failed to upload some images";
             alert(msg);
@@ -118,8 +174,7 @@ export default function AdminUploadCard() {
         });
     };
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
+    const handleSave = async () => {
         if (formData.categories.length === 0) {
             alert("Please select at least one category");
             return;
@@ -131,12 +186,11 @@ export default function AdminUploadCard() {
 
         setLoading(true);
         try {
-            // Process colors from comma separated string to array
             const colorsArray = formData.print_colors
                 ? formData.print_colors.split(",").map(c => c.trim()).filter(Boolean)
                 : [];
 
-            await api.post("/designs", {
+            const payload = {
                 ...formData,
                 base_price: parseFloat(formData.base_price),
                 min_quantity: parseInt(formData.min_quantity),
@@ -144,21 +198,37 @@ export default function AdminUploadCard() {
                 print_price: parseFloat(formData.print_price),
                 print_price_unit: parseInt(formData.print_price_unit),
                 print_colors: colorsArray,
-                thumbnail_url: imageUrls[0], // Use first image as thumbnail
+                style: formData.style === "Other" ? formData.custom_style : formData.style,
+                orientation: formData.orientation,
+                supported_langs: formData.supported_langs,
+                thumbnail_url: imageUrls[0],
                 image_urls: imageUrls,
-            });
+            };
+
+            if (isEditMode) {
+                await api.patch(`/designs/${editId}`, payload);
+            } else {
+                await api.post("/designs", payload);
+            }
+
             router.push("/admin/designs");
         } catch (err: any) {
-            alert(err.response?.data?.detail || "Failed to publish card");
+            alert(err.response?.data?.detail || `Failed to ${isEditMode ? 'update' : 'publish'} card`);
         } finally {
             setLoading(false);
         }
     };
 
+    if (fetching) {
+        return <div className="py-24 text-center">Loading design details...</div>;
+    }
+
     return (
         <div className="max-w-3xl mx-auto space-y-8 pb-12">
             <div>
-                <h1 className="text-3xl font-serif font-bold tracking-tight">Upload New Card</h1>
+                <h1 className="text-3xl font-serif font-bold tracking-tight">
+                    {isEditMode ? "Edit Card Design" : "Upload New Card"}
+                </h1>
                 <p className="text-muted-foreground mt-1">Step {step} of 3: {
                     step === 1 ? "Basic Details" : step === 2 ? "Upload Images" : "Review & Publish"
                 }</p>
@@ -173,9 +243,11 @@ export default function AdminUploadCard() {
             </div>
 
             <div className="bg-card border rounded-xl p-6 shadow-sm">
-                <form onSubmit={handleSubmit} className="space-y-6">
+                <form onSubmit={(e) => e.preventDefault()} className="space-y-6">
+                    {/* ... (rest of the steps remain same) */}
                     {step === 1 && (
                         <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
+                            {/* Content of Step 1 */}
                             <div className="grid gap-4 md:grid-cols-2">
                                 <div className="space-y-2">
                                     <Label htmlFor="name">Card Name</Label>
@@ -193,8 +265,10 @@ export default function AdminUploadCard() {
                                         id="slug"
                                         value={formData.slug}
                                         onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
+                                        disabled={isEditMode}
                                         required
                                     />
+                                    {isEditMode && <p className="text-[10px] text-muted-foreground">URL slug cannot be changed after creation.</p>}
                                 </div>
                             </div>
 
@@ -213,6 +287,68 @@ export default function AdminUploadCard() {
                                             {cat.label}
                                         </div>
                                     ))}
+                                </div>
+                            </div>
+
+                            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                                <div className="space-y-2">
+                                    <Label htmlFor="style">Style Theme</Label>
+                                    <select
+                                        id="style"
+                                        className="w-full flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                        value={formData.style}
+                                        onChange={(e) => setFormData({ ...formData, style: e.target.value })}
+                                    >
+                                        <option value="Traditional">Traditional</option>
+                                        <option value="Modern">Modern</option>
+                                        <option value="Floral">Floral</option>
+                                        <option value="Minimalist">Minimalist</option>
+                                        <option value="Other">Other</option>
+                                    </select>
+                                    {formData.style === "Other" && (
+                                        <Input
+                                            className="mt-2"
+                                            placeholder="Specify style..."
+                                            value={formData.custom_style}
+                                            onChange={(e) => setFormData({ ...formData, custom_style: e.target.value })}
+                                            required
+                                        />
+                                    )}
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label htmlFor="orientation">Orientation</Label>
+                                    <select
+                                        id="orientation"
+                                        className="w-full flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                        value={formData.orientation}
+                                        onChange={(e) => setFormData({ ...formData, orientation: e.target.value })}
+                                    >
+                                        <option value="Portrait">Portrait</option>
+                                        <option value="Landscape">Landscape</option>
+                                        <option value="Square">Square</option>
+                                    </select>
+                                </div>
+
+                                <div className="space-y-3">
+                                    <Label>Languages Supported</Label>
+                                    <div className="flex flex-wrap gap-2">
+                                        {[
+                                            { id: "EN", label: "English" },
+                                            { id: "HI", label: "Hindi" }
+                                        ].map(lang => (
+                                            <div
+                                                key={lang.id}
+                                                onClick={() => toggleLanguage(lang.id)}
+                                                className={`cursor-pointer border rounded-md p-2 text-center text-sm transition-colors flex-1 ${formData.supported_langs.includes(lang.id)
+                                                    ? "bg-primary text-primary-foreground border-primary"
+                                                    : "bg-background hover:border-primary/50"
+                                                    }`}
+                                            >
+                                                {lang.label}
+                                            </div>
+                                        ))}
+                                    </div>
                                 </div>
                             </div>
 
@@ -393,13 +529,17 @@ export default function AdminUploadCard() {
                             </div>
 
                             <p className="text-xs text-muted-foreground text-center">
-                                By publishing, this card will immediately become available in the Browsing Library.
+                                {isEditMode
+                                    ? "By saving, the updated details will be reflected in the Browsing Library."
+                                    : "By publishing, this card will immediately become available in the Browsing Library."
+                                }
                             </p>
                         </div>
                     )}
 
                     <div className="pt-6 border-t flex justify-between">
                         <Button
+                            key="back-btn"
                             type="button"
                             variant="outline"
                             onClick={handleBack}
@@ -409,17 +549,37 @@ export default function AdminUploadCard() {
                         </Button>
 
                         {step < 3 ? (
-                            <Button type="button" onClick={handleNext} className="bg-primary hover:bg-primary/90" disabled={uploadingImages}>
+                            <Button
+                                key="next-btn"
+                                type="button"
+                                onClick={handleNext}
+                                className="bg-primary hover:bg-primary/90"
+                                disabled={uploadingImages}
+                            >
                                 {uploadingImages ? "Uploading..." : "Continue"}
                             </Button>
                         ) : (
-                            <Button type="submit" disabled={loading} className="bg-secondary text-secondary-foreground hover:bg-secondary/90">
-                                {loading ? "Publishing..." : "Publish Card"}
+                            <Button
+                                key="save-btn"
+                                type="button"
+                                disabled={loading}
+                                onClick={handleSave}
+                                className="bg-secondary text-secondary-foreground hover:bg-secondary/90"
+                            >
+                                {loading ? (isEditMode ? "Saving..." : "Publishing...") : (isEditMode ? "Save Changes" : "Publish Card")}
                             </Button>
                         )}
                     </div>
                 </form>
             </div>
         </div>
+    );
+}
+
+export default function AdminUploadCard() {
+    return (
+        <Suspense fallback={<div className="py-24 text-center">Loading form...</div>}>
+            <AdminDesignForm />
+        </Suspense>
     );
 }

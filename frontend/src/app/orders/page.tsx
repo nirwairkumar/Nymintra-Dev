@@ -105,8 +105,9 @@ export default function OrdersPage() {
                                     </div>
                                 </div>
                                 <div>
-                                    <Button variant="outline">View Details</Button>
-                                    <Button variant="outline" className="ml-2">Contact Support</Button>
+                                    <Link href={`/orders/${order.id}`}>
+                                        <Button variant="outline">View Details</Button>
+                                    </Link>
                                 </div>
                             </div>
                         </div>

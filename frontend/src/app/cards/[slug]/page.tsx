@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { ProductGallery } from "@/components/cards/ProductGallery";
 
 // Define the interface for the design
 interface CardDesign {
@@ -63,30 +64,8 @@ export default async function DesignDetailPage({ params }: { params: { slug: str
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
                 {/* Image Gallery */}
-                <div className="flex flex-col gap-4">
-                    <div className="aspect-[3/4] bg-muted/30 rounded-2xl overflow-hidden relative border shadow-sm flex items-center justify-center p-4">
-                        {images.length > 0 ? (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img
-                                src={images[0]}
-                                alt={design.name}
-                                className="w-full h-full object-contain drop-shadow-xl"
-                            />
-                        ) : (
-                            <div className="text-center">
-                                <span className="text-muted-foreground block text-lg font-serif">Image Unavailable</span>
-                            </div>
-                        )}
-                    </div>
-                    {images.length > 1 && (
-                        <div className="grid grid-cols-4 gap-2">
-                            {images.map((url, i) => (
-                                <div key={i} className="aspect-square rounded-md border bg-muted/20 overflow-hidden cursor-pointer hover:opacity-80 transition-opacity">
-                                    <img src={url} alt={`View ${i}`} className="w-full h-full object-cover" />
-                                </div>
-                            ))}
-                        </div>
-                    )}
+                <div className="lg:sticky lg:top-24 h-fit">
+                    <ProductGallery images={images} productName={design.name} />
                 </div>
 
                 {/* Details Section */}

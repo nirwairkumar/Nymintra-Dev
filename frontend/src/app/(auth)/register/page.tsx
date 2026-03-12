@@ -93,7 +93,7 @@ export default function RegisterPage() {
                                 <FormItem>
                                     <FormLabel className="text-foreground">Full Name</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="e.g. Rahul Sharma" {...field} className="h-12 bg-background" />
+                                        <Input placeholder="e.g. Rahul Sharma" {...field} className="h-12 bg-background" suppressHydrationWarning />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -106,7 +106,7 @@ export default function RegisterPage() {
                                 <FormItem>
                                     <FormLabel className="text-foreground">Email Address</FormLabel>
                                     <FormControl>
-                                        <Input type="email" placeholder="e.g. rahul@example.com" {...field} className="h-12 bg-background" />
+                                        <Input type="email" placeholder="e.g. rahul@example.com" {...field} className="h-12 bg-background" suppressHydrationWarning />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -119,7 +119,7 @@ export default function RegisterPage() {
                                 <FormItem>
                                     <FormLabel className="text-foreground">Mobile Number (Optional)</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="Enter your 10-digit number" {...field} className="h-12 bg-background" />
+                                        <Input placeholder="Enter your 10-digit number" {...field} className="h-12 bg-background" suppressHydrationWarning />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -132,7 +132,7 @@ export default function RegisterPage() {
                                 <FormItem>
                                     <FormLabel className="text-foreground">Password</FormLabel>
                                     <FormControl>
-                                        <Input type="password" placeholder="Create a password" {...field} className="h-12 bg-background" />
+                                        <Input type="password" placeholder="Create a password" {...field} className="h-12 bg-background" suppressHydrationWarning />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -142,6 +142,7 @@ export default function RegisterPage() {
                             type="submit"
                             className="w-full h-12 text-md font-medium bg-secondary text-secondary-foreground hover:bg-secondary/90 transition-all shadow-md"
                             disabled={loading}
+                            suppressHydrationWarning
                         >
                             {loading ? "Creating account..." : "Create Account"}
                         </Button>

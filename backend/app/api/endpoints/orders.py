@@ -11,6 +11,8 @@ class OrderCreate(BaseModel):
     quantity: int
     customization_data: Dict[str, Any]
     delivery_address: Dict[str, str]
+    razorpay_payment_id: Optional[str] = None
+    payment_status: Optional[str] = "pending"
 
 class OrderStatusUpdate(BaseModel):
     status: str
@@ -23,16 +25,37 @@ def create_order(
 ):
     try:
         user_id = current_user['id']
+        email = current_user.get("email")
         
-        # Ensure user exists in public.users table (Sync metadata if missing)
-        # This prevents Foreign Key violations in customizations/orders tables
+        # Ensure user exists in public.users table (Safe Sync)
+        # We check by ID first, then by email to avoid unique constraint violations
+        existing_by_id = supabase.table("users").select("*").eq("id", user_id).execute()
+        
         user_sync = {
-            "id": user_id,
-            "email": current_user.get("email"),
             "name": current_user.get("name", "User"),
-            "phone": current_user.get("phone")
+            "phone": current_user.get("phone"),
+            "email": email
         }
-        supabase.table("users").upsert(user_sync).execute()
+        
+        if existing_by_id.data:
+            # User exists by ID, just update details
+            supabase.table("users").update(user_sync).eq("id", user_id).execute()
+        else:
+            # Check if email exists under a different ID
+            if email:
+                existing_by_email = supabase.table("users").select("*").eq("email", email).execute()
+                if existing_by_email.data:
+                    # Email exists for another ID. We "reclaim" this record for the current auth ID
+                    # or simply update the ID if the schema allows. 
+                    # Most reliable: Update the existing record's ID to match current auth.id
+                    old_id = existing_by_email.data[0]['id']
+                    supabase.table("users").update({"id": user_id, **user_sync}).eq("id", old_id).execute()
+                else:
+                    # New user entirely
+                    supabase.table("users").insert({"id": user_id, **user_sync}).execute()
+            else:
+                # No email provided, just insert by ID
+                supabase.table("users").insert({"id": user_id, **user_sync}).execute()
         
         # 1. Insert Customization
         cust_payload = {
@@ -88,7 +111,9 @@ def create_order(
             "total_amount": total_amount,
             "status": "pending",
             "customization_id": customization_id,
-            "address_id": address_id
+            "address_id": address_id,
+            "razorpay_payment_id": order_in.razorpay_payment_id,
+            "payment_status": order_in.payment_status
         }
         order_res = supabase.table("orders").insert(order_payload).execute()
         
@@ -101,7 +126,13 @@ def create_order(
     except HTTPException as he:
         raise he
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Order creation failed: {str(e)}")
+        err_msg = str(e)
+        if "payment_status" in err_msg or "razorpay_payment_id" in err_msg:
+             raise HTTPException(
+                status_code=500, 
+                detail="Database schema mismatch: missing payment columns. Please run the SQL migration provided in the instructions."
+            )
+        raise HTTPException(status_code=500, detail=f"Order creation failed: {err_msg}")
 
 @router.get("/", response_model=List[Dict[str, Any]])
 def get_user_orders(
@@ -128,12 +159,43 @@ def update_order_status(
     if current_user.get('role') != 'admin':
         raise HTTPException(status_code=403, detail="Not authorized to update order status")
         
-    valid_statuses = ["pending", "printing", "packing", "shipping", "delivered"]
+    valid_statuses = ["pending", "processing", "printing", "packing", "shipping", "delivered"]
     if status_update.status not in valid_statuses:
         raise HTTPException(status_code=400, detail="Invalid status")
         
     try:
         res = supabase.table("orders").update({"status": status_update.status}).eq("id", order_id).execute()
         return {"status": "success", "data": res.data}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.get("/{order_id}", response_model=Dict[str, Any])
+def get_order_by_id(
+    order_id: str,
+    current_user: dict = Depends(get_current_user),
+    supabase = Depends(get_supabase)
+):
+    try:
+        # Check permissions: user must own the order or be an admin
+        res = supabase.table("orders").select("*, customizations(*), addresses(*)").eq("id", order_id).execute()
+        
+        if not res.data:
+            raise HTTPException(status_code=404, detail="Order not found")
+            
+        order = res.data[0]
+        
+        if current_user.get('role') != 'admin' and order.get('user_id') != current_user.get('id'):
+            raise HTTPException(status_code=403, detail="Not authorized to view this order")
+            
+        # Optional: fetch user details for admin
+        if current_user.get('role') == 'admin':
+            user_res = supabase.table("users").select("name, email, phone").eq("id", order.get('user_id')).execute()
+            if user_res.data:
+                order['user_details'] = user_res.data[0]
+                
+        return order
+        
+    except HTTPException as he:
+        raise he
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

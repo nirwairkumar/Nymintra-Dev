@@ -37,6 +37,28 @@ class CardDesignBase(BaseModel):
 class CardDesignCreate(CardDesignBase):
     pass
 
+class CardDesignUpdate(BaseModel):
+    name: Optional[str] = None
+    slug: Optional[str] = None
+    categories: Optional[List[str]] = None
+    style: Optional[str] = None
+    description: Optional[str] = None
+    base_price: Optional[float] = None
+    min_quantity: Optional[int] = None
+    thumbnail_url: Optional[HttpUrl] = None
+    image_urls: Optional[List[HttpUrl]] = None
+    preview_url: Optional[HttpUrl] = None
+    print_url: Optional[HttpUrl] = None
+    zones_json: Optional[Dict[str, List[ZoneSchema]]] = None
+    supported_langs: Optional[List[str]] = None
+    orientation: Optional[str] = None
+    is_active: Optional[bool] = None
+    sort_order: Optional[int] = None
+    available_stock: Optional[int] = None
+    print_price: Optional[float] = None
+    print_price_unit: Optional[int] = None
+    print_colors: Optional[List[str]] = None
+
 class CardDesignResponse(CardDesignBase):
     id: str
     created_at: datetime

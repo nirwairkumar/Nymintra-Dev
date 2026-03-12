@@ -88,7 +88,9 @@ export default function AdminDesignsPage() {
                                     </p>
                                 </div>
                                 <div className="mt-4 flex justify-between gap-2">
-                                    <Button variant="outline" size="sm" className="w-full">Edit</Button>
+                                    <Link href={`/admin/designs/upload?edit=${card.id}`} className="w-full">
+                                        <Button variant="outline" size="sm" className="w-full">Edit</Button>
+                                    </Link>
                                     <Button
                                         variant="outline"
                                         size="sm"

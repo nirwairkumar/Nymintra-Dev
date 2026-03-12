@@ -78,7 +78,7 @@ export default function AdminDashboard() {
     };
 
     const StatusSelect = ({ order }: { order: any }) => {
-        const statuses = ["pending", "printing", "packing", "shipping", "delivered"];
+        const statuses = ["pending", "processing", "printing", "packing", "shipping", "delivered"];
         return (
             <select
                 className="text-xs p-1 mt-1 border rounded w-full bg-background"

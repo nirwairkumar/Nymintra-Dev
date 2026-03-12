@@ -29,18 +29,13 @@ api.interceptors.response.use(
     (response) => response,
     (error) => {
         if (error.response?.status === 401) {
-            // Handle unauthorized (e.g., clear token and redirect to login)
-            Cookies.remove('access_token');
-            if (typeof window !== 'undefined') {
-                const path = window.location.pathname;
-                if (path.startsWith('/admin') && path !== '/admin') {
-                    // Redirect to admin login (which is at /admin)
-                    window.location.href = '/admin';
-                } else if (!path.includes('/login') && !path.startsWith('/admin')) {
-                    // Redirect regular users to login
-                    window.location.href = '/login';
-                }
-            }
+            // Handle unauthorized (clear token)
+            Cookies.remove('access_token', { path: '/' });
+            localStorage.removeItem('user');
+
+            // We NO LONGER automatically redirect to login here.
+            // Individual pages (like /orders, /checkout) must handle their own Auth guards
+            // or we use Next.js middleware. This prevents infinite redirect loops on public pages.
         }
         return Promise.reject(error);
     }

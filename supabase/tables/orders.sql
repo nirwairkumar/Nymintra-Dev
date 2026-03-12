@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS public.addresses (
 
 -- Create Order Status Enum Type
 DO $$ BEGIN
-    CREATE TYPE order_status AS ENUM ('pending', 'printing', 'packing', 'shipping', 'delivered');
+    CREATE TYPE order_status AS ENUM ('pending', 'processing', 'printing', 'packing', 'shipping', 'delivered');
 EXCEPTION
     WHEN duplicate_object THEN null;
 END $$;
@@ -41,6 +41,8 @@ CREATE TABLE IF NOT EXISTS public.orders (
     status order_status DEFAULT 'pending'::order_status NOT NULL,
     customization_id UUID REFERENCES public.customizations(id) ON DELETE SET NULL,
     address_id UUID REFERENCES public.addresses(id) ON DELETE SET NULL,
+    razorpay_payment_id VARCHAR(255),
+    payment_status VARCHAR(50),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );

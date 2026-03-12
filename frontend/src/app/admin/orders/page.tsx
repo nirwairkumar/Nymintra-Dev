@@ -1,11 +1,41 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { api } from "@/lib/api";
+import Link from "next/link";
+import { authService } from "@/services/auth.service";
+import { useRouter } from "next/navigation";
 
 export default function AdminOrdersPage() {
-    const mockOrders = [
-        { id: "NYM-20260315-001", customer: "Rahul Sharma", date: "Today", status: "Pending Review", amount: "₹4,500" },
-        { id: "NYM-20260315-002", customer: "Priya Patel", date: "Today", status: "Printing", amount: "₹8,200" },
-        { id: "NYM-20260314-045", customer: "Amit Kumar", date: "Yesterday", status: "Shipped", amount: "₹2,100" },
-    ];
+    const [orders, setOrders] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
+    const router = useRouter();
+
+    useEffect(() => {
+        authService.getCurrentUser()
+            .then(user => {
+                if (user.role === 'admin') {
+                    fetchOrders();
+                } else {
+                    router.push('/admin');
+                }
+            })
+            .catch(() => {
+                router.push('/admin');
+            });
+    }, [router]);
+
+    const fetchOrders = async () => {
+        try {
+            const res = await api.get('/orders');
+            setOrders(res.data);
+        } catch (e) {
+            console.error("Failed to fetch admin orders", e);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     return (
         <div className="space-y-6">
@@ -32,27 +62,39 @@ export default function AdminOrdersPage() {
                         </tr>
                     </thead>
                     <tbody className="divide-y text-foreground">
-                        {mockOrders.map((order, i) => (
-                            <tr key={i} className="hover:bg-muted/50 transition-colors">
-                                <td className="px-6 py-4 font-medium">{order.id}</td>
-                                <td className="px-6 py-4">{order.customer}</td>
-                                <td className="px-6 py-4 text-muted-foreground">{order.date}</td>
-                                <td className="px-6 py-4">{order.amount}</td>
-                                <td className="px-6 py-4">
-                                    <span className={`px-2 py-1 rounded-full text-xs font-medium 
-                    ${order.status === "Pending Review" ? "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400" :
-                                            order.status === "Printing" ? "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400" :
-                                                "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"}`}>
-                                        {order.status}
-                                    </span>
-                                </td>
-                                <td className="px-6 py-4 text-right">
-                                    <Button variant="ghost" size="sm" className="text-primary">
-                                        View & Approve
-                                    </Button>
-                                </td>
-                            </tr>
-                        ))}
+                        {loading ? (
+                            <tr><td colSpan={6} className="px-6 py-8 text-center">Loading orders...</td></tr>
+                        ) : orders.length === 0 ? (
+                            <tr><td colSpan={6} className="px-6 py-8 text-center text-muted-foreground">No orders found.</td></tr>
+                        ) : (
+                            orders.map((order, i) => (
+                                <tr key={order.id} className="hover:bg-muted/50 transition-colors">
+                                    <td className="px-6 py-4 font-medium">{order.id.split('-')[0]}</td>
+                                    <td className="px-6 py-4">
+                                        <div>{order.addresses?.full_name || 'N/A'}</div>
+                                        <div className="text-xs text-muted-foreground">{order.addresses?.city}</div>
+                                    </td>
+                                    <td className="px-6 py-4 text-muted-foreground">{new Date(order.created_at).toLocaleDateString()}</td>
+                                    <td className="px-6 py-4 font-semibold">₹{order.total_amount}</td>
+                                    <td className="px-6 py-4">
+                                        <span className={`px-2 py-1 rounded-full text-xs font-medium 
+                                            ${order.status === "pending" ? "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400" :
+                                                order.status === "processing" ? "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400" :
+                                                    order.status === "printing" ? "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400" :
+                                                        "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"}`}>
+                                            {order.status.toUpperCase()}
+                                        </span>
+                                    </td>
+                                    <td className="px-6 py-4 text-right">
+                                        <Link href={`/admin/orders/${order.id}`} target="_blank">
+                                            <Button variant="ghost" size="sm" className="text-primary hover:bg-primary/10">
+                                                View Details
+                                            </Button>
+                                        </Link>
+                                    </td>
+                                </tr>
+                            ))
+                        )}
                     </tbody>
                 </table>
             </div>

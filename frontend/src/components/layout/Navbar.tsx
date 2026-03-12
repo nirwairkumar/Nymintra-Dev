@@ -44,6 +44,7 @@ export function Navbar() {
                 .catch(() => {
                     setUser(null);
                     localStorage.removeItem('user');
+                    Cookies.remove('access_token', { path: '/' }); // Ensure cookie is also gone
                 });
         } else {
             setUser(null);
