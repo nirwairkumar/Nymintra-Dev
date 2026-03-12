@@ -26,13 +26,13 @@ async function getDesigns(category?: string) {
 export default async function CardsCatalog({
     searchParams
 }: {
-    searchParams: { category?: string }
+    searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }) {
     // Await searchParams in Next 15+ if needed, but it's fine as an object in 13/14.
     // Assuming Next.js 14 based on the project age, searchParams is synchronously available, 
     // but Next.js 15 requires it to be awaited. We'll access it directly for now.
-    const sp = await searchParams; // Next.js 15 compat
-    const category = sp.category || 'all';
+    const resolvedParams = await searchParams;
+    const category = typeof resolvedParams.category === 'string' ? resolvedParams.category : 'all';
 
     const designs = await getDesigns(category);
 

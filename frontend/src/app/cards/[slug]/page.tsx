@@ -40,7 +40,11 @@ async function getDesignBySlug(slug: string): Promise<CardDesign | null> {
     }
 }
 
-export default async function DesignDetailPage({ params }: { params: { slug: string } }) {
+type Props = {
+    params: Promise<{ slug: string }>
+}
+
+export default async function DesignDetailPage({ params }: Props) {
     const resolvedParams = await Promise.resolve(params);
     const design = await getDesignBySlug(resolvedParams.slug);
 
