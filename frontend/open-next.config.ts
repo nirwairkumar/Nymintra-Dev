@@ -1,7 +1,7 @@
 export default {
     default: {
         override: {
-            wrapper: "cloudflare-node",
+            wrapper: "cloudflare",
             converter: "edge",
             proxyExternalRequest: "fetch",
             incrementalCache: "dummy",
@@ -13,7 +13,7 @@ export default {
     middleware: {
         external: true,
         override: {
-            wrapper: "cloudflare-edge",
+            wrapper: "cloudflare",
             converter: "edge",
             proxyExternalRequest: "fetch",
             incrementalCache: "dummy",
