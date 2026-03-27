@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useNavigate } from 'react-router-dom';
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -29,8 +28,8 @@ const registerSchema = z.object({
 });
 
 export default function RegisterPage() {
-    const router = useNavigate();
     const [error, setError] = useState("");
+    const [success, setSuccess] = useState(false);
     const [loading, setLoading] = useState(false);
 
     const form = useForm<z.infer<typeof registerSchema>>({
@@ -45,15 +44,15 @@ export default function RegisterPage() {
 
     async function onSubmit(values: z.infer<typeof registerSchema>) {
         setError("");
+        setSuccess(false);
         setLoading(true);
         try {
             await authService.register(values);
-            navigate("/cards"); // Redirect to catalog on success
-            router.refresh();
+            setSuccess(true);
         } catch (err: any) {
-            setError(
-                err.response?.data?.detail || "Registration failed. This mobile number might already be registered."
-            );
+            console.error("Registration error:", err);
+            const message = err.response?.data?.detail || "Registration failed. Please check your connection or try again.";
+            setError(message);
         } finally {
             setLoading(false);
         }
@@ -84,70 +83,85 @@ export default function RegisterPage() {
                     </div>
                 )}
 
-                <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                        <FormField
-                            control={form.control}
-                            name="name"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel className="text-foreground">Full Name</FormLabel>
-                                    <FormControl>
-                                        <Input placeholder="e.g. Rahul Sharma" {...field} className="h-12 bg-background" suppressHydrationWarning />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="email"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel className="text-foreground">Email Address</FormLabel>
-                                    <FormControl>
-                                        <Input type="email" placeholder="e.g. rahul@example.com" {...field} className="h-12 bg-background" suppressHydrationWarning />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="phone"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel className="text-foreground">Mobile Number (Optional)</FormLabel>
-                                    <FormControl>
-                                        <Input placeholder="Enter your 10-digit number" {...field} className="h-12 bg-background" suppressHydrationWarning />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="password"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel className="text-foreground">Password</FormLabel>
-                                    <FormControl>
-                                        <Input type="password" placeholder="Create a password" {...field} className="h-12 bg-background" suppressHydrationWarning />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <Button
-                            type="submit"
-                            className="w-full h-12 text-md font-medium bg-secondary text-secondary-foreground hover:bg-secondary/90 transition-all shadow-md"
-                            disabled={loading}
-                            suppressHydrationWarning
-                        >
-                            {loading ? "Creating account..." : "Create Account"}
-                        </Button>
-                    </form>
-                </Form>
+                {success ? (
+                    <div className="text-center py-8">
+                        <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-green-600"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                        </div>
+                        <h2 className="text-2xl font-serif font-semibold text-foreground mb-4">Account Created</h2>
+                        <p className="text-muted-foreground text-sm font-sans mb-8">
+                            We've sent a verification link to your email address. Please check your inbox and click the link to verify your account before logging in.
+                        </p>
+                        <Link to="/login" className="inline-flex h-12 items-center justify-center rounded-md bg-secondary text-secondary-foreground px-8 font-medium hover:bg-secondary/90 transition-all shadow-md">
+                            Go to Login
+                        </Link>
+                    </div>
+                ) : (
+                    <Form {...form}>
+                        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                            <FormField
+                                control={form.control}
+                                name="name"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel className="text-foreground">Full Name</FormLabel>
+                                        <FormControl>
+                                            <Input placeholder="e.g. Rahul Sharma" {...field} className="h-12 bg-background" suppressHydrationWarning />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="email"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel className="text-foreground">Email Address</FormLabel>
+                                        <FormControl>
+                                            <Input type="email" placeholder="e.g. rahul@example.com" {...field} className="h-12 bg-background" suppressHydrationWarning />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="phone"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel className="text-foreground">Mobile Number (Optional)</FormLabel>
+                                        <FormControl>
+                                            <Input placeholder="Enter your 10-digit number" {...field} className="h-12 bg-background" suppressHydrationWarning />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="password"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel className="text-foreground">Password</FormLabel>
+                                        <FormControl>
+                                            <Input type="password" placeholder="Create a password" {...field} className="h-12 bg-background" suppressHydrationWarning />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <Button
+                                type="submit"
+                                className="w-full h-12 text-md font-medium bg-secondary text-secondary-foreground hover:bg-secondary/90 transition-all shadow-md"
+                                disabled={loading}
+                                suppressHydrationWarning
+                            >
+                                {loading ? "Creating account..." : "Create Account"}
+                            </Button>
+                        </form>
+                    </Form>
+                )}
 
                 <div className="mt-8 text-center text-sm text-muted-foreground">
                     Already have an account?{" "}

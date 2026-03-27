@@ -27,6 +27,7 @@ const loginSchema = z.object({
 export default function LoginPage() {
     const router = useNavigate();
     const [error, setError] = useState("");
+    const [success, setSuccess] = useState("");
     const [loading, setLoading] = useState(false);
 
     const form = useForm<z.infer<typeof loginSchema>>({
@@ -39,11 +40,14 @@ export default function LoginPage() {
 
     async function onSubmit(values: z.infer<typeof loginSchema>) {
         setError("");
+        setSuccess("");
         setLoading(true);
         try {
             await authService.login(values);
-            navigate("/cards"); // Redirect to catalog on success
-            router.refresh();
+            setSuccess("Successfully logged in! Redirecting...");
+            setTimeout(() => {
+                router("/"); // Redirect to home on success
+            }, 1500);
         } catch (err: any) {
             setError(
                 err.response?.data?.detail || "Failed to login. Please check your credentials."
@@ -75,6 +79,14 @@ export default function LoginPage() {
                 {error && (
                     <div className="mb-6 p-3 bg-red-50 border border-red-200 text-red-600 rounded-md text-sm text-center">
                         {error}
+                    </div>
+                )}
+                {success && (
+                    <div className="mb-6 p-3 bg-green-50 border border-green-200 text-green-700 rounded-md text-sm text-center font-medium shadow-sm">
+                        <div className="flex items-center justify-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                            {success}
+                        </div>
                     </div>
                 )}
 
