@@ -7,6 +7,7 @@ const fadeInUp = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.8, type: "tween", ease: "easeOut" } }
 };
 
+
 const staggerContainer = {
   hidden: { opacity: 0 },
   visible: {
@@ -24,13 +25,13 @@ export default function Home() {
       <section className="relative w-full py-20 lg:py-32 xl:py-40 flex flex-col items-center justify-center text-center overflow-hidden">
         {/* Background Decorative Pattern - Modern Indian/Mandala gradient hint */}
         <div className="absolute inset-0 z-0 opacity-20 pointer-events-none">
-          <motion.div 
+          <motion.div
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 2, ease: "easeOut" }}
             className="absolute top-0 left-0 w-96 h-96 bg-primary/30 rounded-full blur-3xl translate-x-[-30%] translate-y-[-30%]"
           />
-          <motion.div 
+          <motion.div
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 2, delay: 0.5, ease: "easeOut" }}
@@ -40,7 +41,7 @@ export default function Home() {
         </div>
 
         <div className="container px-4 md:px-6 z-10 relative">
-          <motion.div 
+          <motion.div
             variants={staggerContainer}
             initial="hidden"
             animate="visible"
@@ -77,7 +78,7 @@ export default function Home() {
       {/* Featured Categories */}
       <section className="w-full py-20 md:py-32 bg-card/60 relative backdrop-blur-md border-y border-border/50">
         <div className="container px-4 md:px-6">
-          <motion.div 
+          <motion.div
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, amount: 0.2 }}
@@ -93,7 +94,7 @@ export default function Home() {
             </motion.p>
           </motion.div>
 
-          <motion.div 
+          <motion.div
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, amount: 0.1 }}
@@ -127,10 +128,10 @@ export default function Home() {
       <section className="w-full py-20 md:py-32 bg-accent relative overflow-hidden text-accent-foreground">
         {/* Subtle background motif for the dark accent area */}
         <div className="absolute inset-0 opacity-5" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '32px 32px' }} />
-        
+
         <div className="container px-4 md:px-6 relative z-10">
           <div className="grid items-center gap-16 lg:grid-cols-2">
-            <motion.div 
+            <motion.div
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true, amount: 0.3 }}
@@ -163,9 +164,9 @@ export default function Home() {
                 ))}
               </motion.ul>
             </motion.div>
-            
+
             {/* Right side interactive/animated mockup */}
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, x: 50 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
@@ -177,7 +178,7 @@ export default function Home() {
                 <div className="w-3 h-3 rounded-full bg-yellow-400" />
                 <div className="w-3 h-3 rounded-full bg-green-400" />
               </div>
-              <motion.div 
+              <motion.div
                 animate={{ y: [0, -10, 0] }}
                 transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
                 className="w-3/4 aspect-[3/4] bg-white rounded-lg shadow-xl translate-y-4 flex flex-col items-center justify-center p-6 border-4 border-amber-100/20"
