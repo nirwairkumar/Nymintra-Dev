@@ -10,8 +10,12 @@ class Settings(BaseSettings):
     SUPABASE_URL: str = ""
     SUPABASE_KEY: str = ""
 
-    # FRONTEND
-    FRONTEND_URL: str = "http://localhost:3000"
+    # FRONTEND (Comma-separated for multiple origins)
+    FRONTEND_URLS: str = "http://localhost:3000,http://localhost:5173,https://nymintra.pages.dev"
+    
+    @property
+    def cors_origins(self) -> list[str]:
+        return [url.strip() for url in self.FRONTEND_URLS.split(",") if url.strip()]
     
     # RAZORPAY
     RAZORPAY_KEY_ID: str = ""
