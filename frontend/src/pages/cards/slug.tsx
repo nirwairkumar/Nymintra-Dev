@@ -1,6 +1,5 @@
 import { Button } from "@/components/ui/button";
-import Link from "next/link";
-import { notFound } from "next/navigation";
+import { Link } from 'react-router-dom';
 import { ProductGallery } from "@/components/cards/ProductGallery";
 
 // Define the interface for the design
@@ -30,7 +29,7 @@ interface CardDesign {
 
 // Fetch the design from the backend
 async function getDesignBySlug(slug: string): Promise<CardDesign | null> {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
+    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
     try {
         const res = await fetch(`${apiUrl}/designs/${slug}`, { cache: 'no-store' });
         if (!res.ok) return null;
@@ -40,16 +39,29 @@ async function getDesignBySlug(slug: string): Promise<CardDesign | null> {
     }
 }
 
-type Props = {
-    params: Promise<{ slug: string }>
-}
+import { useParams } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 
-export default async function DesignDetailPage({ params }: Props) {
-    const resolvedParams = await Promise.resolve(params);
-    const design = await getDesignBySlug(resolvedParams.slug);
+export default function DesignDetailPage() {
+    const { slug } = useParams();
+    const [design, setDesign] = useState<CardDesign | null>(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        if (slug) {
+            getDesignBySlug(slug).then(data => {
+                setDesign(data);
+                setLoading(false);
+            });
+        }
+    }, [slug]);
+
+    if (loading) {
+        return <div className="py-24 text-center">Loading design...</div>;
+    }
 
     if (!design) {
-        notFound();
+        return <div className="py-24 text-center">Design not found</div>;
     }
 
     const images = design.image_urls && design.image_urls.length > 0
@@ -60,7 +72,7 @@ export default async function DesignDetailPage({ params }: Props) {
         <div className="container mx-auto px-4 py-12 max-w-7xl">
             {/* Breadcrumb back navigation */}
             <div className="mb-8">
-                <Link href="/cards" className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center">
+                <Link to="/cards" className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center">
                     <svg xmlns="http://www.w3.org/0000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1"><path d="m15 18-6-6 6-6" /></svg>
                     Back to Catalog
                 </Link>
@@ -153,7 +165,7 @@ export default async function DesignDetailPage({ params }: Props) {
                     {/* Call To Action */}
                     <div className="mt-auto pt-4">
                         {design.available_stock > 0 ? (
-                            <Link href={`/checkout?design=${design.slug}`} className="block w-full">
+                            <Link to={`/checkout?design=${design.slug}`} className="block w-full">
                                 <Button size="lg" className="w-full text-lg h-14 shadow-lg hover:shadow-xl transition-all hover:-translate-y-1">
                                     Customize and Checkout
                                 </Button>

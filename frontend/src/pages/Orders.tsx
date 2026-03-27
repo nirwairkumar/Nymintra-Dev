@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { authService } from "@/services/auth.service";
 import { api } from "@/lib/api";
-import Link from "next/link";
+import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 
 export default function OrdersPage() {
@@ -59,7 +59,7 @@ export default function OrdersPage() {
                     </svg>
                     <h3 className="text-lg font-medium text-foreground mb-2">No orders yet</h3>
                     <p className="text-muted-foreground mb-6">You haven't placed any invitation orders.</p>
-                    <Link href="/cards">
+                    <Link to="/cards">
                         <Button>Browse Catalog</Button>
                     </Link>
                 </div>
@@ -105,7 +105,7 @@ export default function OrdersPage() {
                                     </div>
                                 </div>
                                 <div>
-                                    <Link href={`/orders/${order.id}`}>
+                                    <Link to={`/orders/${order.id}`}>
                                         <Button variant="outline">View Details</Button>
                                     </Link>
                                 </div>

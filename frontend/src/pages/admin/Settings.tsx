@@ -7,14 +7,14 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { api } from "@/lib/api";
 import { authService } from "@/services/auth.service";
-import { useRouter } from "next/navigation";
+import { useNavigate } from 'react-router-dom';
 
 export default function AdminSettingsPage() {
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [supportEnabled, setSupportEnabled] = useState(true);
     const [supportText, setSupportText] = useState("");
-    const router = useRouter();
+    const router = useNavigate();
 
     useEffect(() => {
         authService.getCurrentUser()
@@ -22,11 +22,11 @@ export default function AdminSettingsPage() {
                 if (user.role === 'admin') {
                     fetchSettings();
                 } else {
-                    router.push('/admin');
+                    navigate('/admin');
                 }
             })
             .catch(() => {
-                router.push('/admin');
+                navigate('/admin');
             });
     }, [router]);
 

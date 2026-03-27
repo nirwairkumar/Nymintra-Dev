@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useNavigate } from 'react-router-dom';
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import Link from "next/link";
+import { Link } from 'react-router-dom';
 import { authService } from "@/services/auth.service";
 
 import { Button } from "@/components/ui/button";
@@ -19,34 +19,40 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 
-const loginSchema = z.object({
+const registerSchema = z.object({
+    name: z.string().min(2, "Name must be at least 2 characters"),
     email: z.string().email("Please enter a valid email address"),
+    phone: z.string().optional().refine((val) => !val || (val.length === 10), {
+        message: "Mobile number must be 10 digits if provided"
+    }),
     password: z.string().min(6, "Password must be at least 6 characters"),
 });
 
-export default function LoginPage() {
-    const router = useRouter();
+export default function RegisterPage() {
+    const router = useNavigate();
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
 
-    const form = useForm<z.infer<typeof loginSchema>>({
-        resolver: zodResolver(loginSchema),
+    const form = useForm<z.infer<typeof registerSchema>>({
+        resolver: zodResolver(registerSchema),
         defaultValues: {
+            name: "",
             email: "",
+            phone: "",
             password: "",
         },
     });
 
-    async function onSubmit(values: z.infer<typeof loginSchema>) {
+    async function onSubmit(values: z.infer<typeof registerSchema>) {
         setError("");
         setLoading(true);
         try {
-            await authService.login(values);
-            router.push("/cards"); // Redirect to catalog on success
+            await authService.register(values);
+            navigate("/cards"); // Redirect to catalog on success
             router.refresh();
         } catch (err: any) {
             setError(
-                err.response?.data?.detail || "Failed to login. Please check your credentials."
+                err.response?.data?.detail || "Registration failed. This mobile number might already be registered."
             );
         } finally {
             setLoading(false);
@@ -57,18 +63,18 @@ export default function LoginPage() {
         <div className="min-h-screen flex items-center justify-center bg-background p-4 py-20 relative">
             {/* Background Decorative Pattern */}
             <div className="absolute inset-0 z-0 opacity-10 pointer-events-none overflow-hidden">
-                <div className="absolute top-0 right-0 w-96 h-96 bg-secondary/30 rounded-full blur-3xl translate-x-[20%] translate-y-[-20%]"></div>
-                <div className="absolute bottom-0 left-0 w-80 h-80 bg-primary/20 rounded-full blur-3xl translate-x-[-30%] translate-y-[30%]"></div>
+                <div className="absolute top-0 left-0 w-96 h-96 bg-primary/20 rounded-full blur-3xl translate-x-[-20%] translate-y-[-20%]"></div>
+                <div className="absolute bottom-0 right-0 w-80 h-80 bg-secondary/30 rounded-full blur-3xl translate-x-[30%] translate-y-[30%]"></div>
             </div>
 
             <div className="w-full max-w-md z-10 bg-card p-8 rounded-2xl shadow-xl border border-primary/10">
                 <div className="text-center mb-8">
-                    <Link href="/" className="inline-block">
+                    <Link to="/" className="inline-block">
                         <span className="font-serif text-3xl font-bold text-primary">Nymintra</span>
                     </Link>
-                    <h1 className="mt-4 text-2xl font-serif font-semibold text-foreground">Welcome Back</h1>
+                    <h1 className="mt-4 text-2xl font-serif font-semibold text-foreground">Create Account</h1>
                     <p className="text-muted-foreground mt-2 font-sans text-sm">
-                        Sign in to access your saved designs and orders
+                        Join us to design beautiful invitations for your family
                     </p>
                 </div>
 
@@ -80,6 +86,19 @@ export default function LoginPage() {
 
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                        <FormField
+                            control={form.control}
+                            name="name"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel className="text-foreground">Full Name</FormLabel>
+                                    <FormControl>
+                                        <Input placeholder="e.g. Rahul Sharma" {...field} className="h-12 bg-background" suppressHydrationWarning />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
                         <FormField
                             control={form.control}
                             name="email"
@@ -95,15 +114,25 @@ export default function LoginPage() {
                         />
                         <FormField
                             control={form.control}
+                            name="phone"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel className="text-foreground">Mobile Number (Optional)</FormLabel>
+                                    <FormControl>
+                                        <Input placeholder="Enter your 10-digit number" {...field} className="h-12 bg-background" suppressHydrationWarning />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
                             name="password"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel className="flex justify-between items-center text-foreground">
-                                        <span>Password</span>
-                                        <Link href="#" className="text-xs text-primary hover:underline">Forgot password?</Link>
-                                    </FormLabel>
+                                    <FormLabel className="text-foreground">Password</FormLabel>
                                     <FormControl>
-                                        <Input type="password" placeholder="Enter password" {...field} className="h-12 bg-background" suppressHydrationWarning />
+                                        <Input type="password" placeholder="Create a password" {...field} className="h-12 bg-background" suppressHydrationWarning />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -111,19 +140,19 @@ export default function LoginPage() {
                         />
                         <Button
                             type="submit"
-                            className="w-full h-12 text-md font-medium bg-primary hover:bg-primary/90 text-primary-foreground transition-all shadow-md"
+                            className="w-full h-12 text-md font-medium bg-secondary text-secondary-foreground hover:bg-secondary/90 transition-all shadow-md"
                             disabled={loading}
                             suppressHydrationWarning
                         >
-                            {loading ? "Signing in..." : "Sign In"}
+                            {loading ? "Creating account..." : "Create Account"}
                         </Button>
                     </form>
                 </Form>
 
                 <div className="mt-8 text-center text-sm text-muted-foreground">
-                    Don't have an account?{" "}
-                    <Link href="/register" className="text-primary font-semibold hover:underline">
-                        Create one
+                    Already have an account?{" "}
+                    <Link to="/login" className="text-primary font-semibold hover:underline">
+                        Sign In
                     </Link>
                 </div>
             </div>

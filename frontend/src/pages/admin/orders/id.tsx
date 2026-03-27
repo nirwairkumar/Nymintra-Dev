@@ -5,10 +5,10 @@ import { api } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { authService } from "@/services/auth.service";
+import { useParams } from 'react-router-dom';
 
-export default function OrderDetailPage({ params }: { params: Promise<{ id: string }> }) {
-    const resolvedParams = React.use(params);
-    const orderId = resolvedParams.id;
+export default function OrderDetailPage() {
+    const { id: orderId } = useParams();
 
     const [order, setOrder] = useState<any>(null);
     const [loading, setLoading] = useState(true);

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, Suspense } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -18,7 +18,7 @@ const CATEGORIES = [
 ];
 
 function AdminDesignForm() {
-    const router = useRouter();
+    const router = useNavigate();
     const searchParams = useSearchParams();
     const editId = searchParams.get("edit");
     const isEditMode = !!editId;
@@ -211,7 +211,7 @@ function AdminDesignForm() {
                 await api.post("/designs", payload);
             }
 
-            router.push("/admin/designs");
+            navigate("/admin/designs");
         } catch (err: any) {
             alert(err.response?.data?.detail || `Failed to ${isEditMode ? 'update' : 'publish'} card`);
         } finally {

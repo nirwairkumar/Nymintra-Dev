@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
+import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { api } from "@/lib/api";
 
@@ -40,7 +40,7 @@ export default function AdminDesignsPage() {
                     <h1 className="text-3xl font-serif font-bold tracking-tight">Card Library</h1>
                     <p className="text-muted-foreground mt-1">Manage all available cards, pricing, and categories.</p>
                 </div>
-                <Link href="/admin/designs/upload">
+                <Link to="/admin/designs/upload">
                     <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
                         + Upload New Card
                     </Button>
@@ -52,7 +52,7 @@ export default function AdminDesignsPage() {
             ) : cards.length === 0 ? (
                 <div className="py-24 text-center border-2 border-dashed rounded-xl">
                     <p className="text-muted-foreground">No cards uploaded yet.</p>
-                    <Link href="/admin/designs/upload" className="mt-4 block">
+                    <Link to="/admin/designs/upload" className="mt-4 block">
                         <Button variant="outline">Upload your first card</Button>
                     </Link>
                 </div>
@@ -88,7 +88,7 @@ export default function AdminDesignsPage() {
                                     </p>
                                 </div>
                                 <div className="mt-4 flex justify-between gap-2">
-                                    <Link href={`/admin/designs/upload?edit=${card.id}`} className="w-full">
+                                    <Link to={`/admin/designs/upload?edit=${card.id}`} className="w-full">
                                         <Button variant="outline" size="sm" className="w-full">Edit</Button>
                                     </Link>
                                     <Button

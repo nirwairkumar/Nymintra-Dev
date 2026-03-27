@@ -1,15 +1,19 @@
-"use client";
-
 import { useState, useEffect, Suspense } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { authService } from "@/services/auth.service";
-import Link from "next/link";
 import { api } from "@/lib/api";
+import { motion, AnimatePresence } from "framer-motion";
+
+const fadeVariants = {
+    initial: { opacity: 0, y: 10 },
+    animate: { opacity: 1, y: 0, transition: { duration: 0.4 } },
+    exit: { opacity: 0, scale: 0.95, transition: { duration: 0.2 } }
+};
 
 function CheckoutWizard() {
-    const router = useRouter();
-    const searchParams = useSearchParams();
+    const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
     const designSlug = searchParams.get('design');
 
     const [step, setStep] = useState<number>(1);
@@ -36,55 +40,36 @@ function CheckoutWizard() {
         authService.getCurrentUser()
             .then(data => setUser(data))
             .catch(() => {
-                // If not logged in, redirect to login with a callback to this checkout
-                router.push(`/login?redirect=/checkout?design=${designSlug}`);
+                navigate(`/login?redirect=/checkout?design=${designSlug}`);
             });
 
         if (designSlug) {
             api.get(`/designs/${designSlug}`).then(res => {
                 const fetchedDesign = res.data;
                 setDesign(fetchedDesign);
-
-                // Set initial quantity to MOQ if available
-                if (fetchedDesign.min_quantity) {
-                    setQuantity(fetchedDesign.min_quantity);
-                }
+                if (fetchedDesign.min_quantity) setQuantity(fetchedDesign.min_quantity);
 
                 const updates: any = {};
-                if (fetchedDesign.print_colors && fetchedDesign.print_colors.length > 0) {
-                    updates.print_color = fetchedDesign.print_colors[0];
-                }
-                if (fetchedDesign.categories && fetchedDesign.categories.length > 0) {
-                    updates.event_type = fetchedDesign.categories[0];
-                }
+                if (fetchedDesign.print_colors && fetchedDesign.print_colors.length > 0) updates.print_color = fetchedDesign.print_colors[0];
+                if (fetchedDesign.categories && fetchedDesign.categories.length > 0) updates.event_type = fetchedDesign.categories[0];
                 setCustomization(prev => ({ ...prev, ...updates }));
-            }).catch(err => {
-                console.error("Failed to load design", err);
-            });
+            }).catch(err => console.error("Failed to load design", err));
         }
-    }, [router, designSlug]);
+    }, [navigate, designSlug]);
 
-    // Load Razorpay Script
     useEffect(() => {
         const script = document.createElement("script");
         script.src = "https://checkout.razorpay.com/v1/checkout.js";
         script.async = true;
         document.body.appendChild(script);
-
         return () => {
-            if (document.body.contains(script)) {
-                document.body.removeChild(script);
-            }
+            if (document.body.contains(script)) document.body.removeChild(script);
         }
     }, []);
 
-    const getMinDateString = () => {
-        return new Date().toISOString().split("T")[0];
-    };
+    const getMinDateString = () => new Date().toISOString().split("T")[0];
 
-    if (!user) {
-        return <div className="py-24 text-center">Loading authenticaton state...</div>;
-    }
+    if (!user) return <div className="py-24 text-center">Loading authentication state...</div>;
 
     const handleNext = () => setStep(s => s + 1);
     const handlePrev = () => setStep(s => s - 1);
@@ -102,7 +87,7 @@ function CheckoutWizard() {
 
             const res = await api.post("/orders", payload);
             if (res.data && res.data.order_id) {
-                router.push("/orders?success=true");
+                navigate("/orders?success=true");
             }
         } catch (e: any) {
             console.error("Order failed", e);
@@ -117,30 +102,23 @@ function CheckoutWizard() {
         setIsLoading(true);
 
         try {
-            // 1. Calculate total amount
             const totalAmount = (design.base_price * quantity) + ((design.print_price / design.print_price_unit) * quantity);
-
-            // 2. Create Order on Backend
             const { data: orderData } = await api.post("/payments/create-order", { amount: totalAmount });
 
-            // 3. Configure Razorpay Options
             const options = {
-                key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID, // Enter the Key ID generated from the Dashboard
-                amount: orderData.amount, // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
+                key: import.meta.env.VITE_RAZORPAY_KEY_ID, // Use Vite env vars
+                amount: orderData.amount,
                 currency: orderData.currency,
                 name: "Nymintra",
                 description: "Custom Card Order",
-                order_id: orderData.id, //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
+                order_id: orderData.id,
                 handler: async function (response: any) {
                     try {
-                        // 4. Verify Payment Signature
                         const verifyRes = await api.post("/payments/verify", response);
                         if (verifyRes.data.status === "success") {
-                            // 5. Submit the actual order to our database
                             await submitFinalOrder(response);
                         }
                     } catch (verifyError: any) {
-                        console.error("Payment verification failed", verifyError);
                         alert("Payment verification failed. Please contact support.");
                         setIsLoading(false);
                     }
@@ -150,52 +128,66 @@ function CheckoutWizard() {
                     email: user?.email || "",
                     contact: user?.phone || address?.phone || ""
                 },
-                theme: {
-                    color: "#db2777" // Tailwind Pink 600
-                },
-                modal: {
-                    ondismiss: function () {
-                        setIsLoading(false);
-                    }
-                }
+                theme: { color: "#8a3a41" }, // Match Kumkum maroon
+                modal: { ondismiss: function () { setIsLoading(false); } }
             };
 
-            // 4. Open Razorpay Checktout via script
             const rzp = new (window as any).Razorpay(options);
             rzp.on('payment.failed', function (response: any) {
-                console.error("Payment failed via Razorpay UI", response.error);
                 alert(`Payment Failed: ${response.error.description}`);
                 setIsLoading(false);
             });
             rzp.open();
-
         } catch (error: any) {
-            console.error("Failed to initiate payment", error);
             alert("Failed to initiate payment. " + (error.response?.data?.detail || ""));
             setIsLoading(false);
         }
     };
 
     return (
-        <div className="container mx-auto px-4 py-12 max-w-3xl">
-            <h1 className="text-3xl font-serif font-bold text-center mb-2">Complete Your Order</h1>
-            <p className="text-center text-muted-foreground mb-8">
+        <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="container mx-auto px-4 py-12 max-w-3xl relative"
+        >
+            <div className="absolute top-0 right-10 w-64 h-64 bg-secondary/10 rounded-full blur-3xl -z-10"></div>
+            <div className="absolute bottom-10 left-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -z-10"></div>
+
+            <h1 className="text-4xl md:text-5xl font-serif font-bold text-center mb-3 text-primary">Complete Your Order</h1>
+            <p className="text-center text-muted-foreground mb-12 font-medium tracking-wide">
                 {step === 1 ? "Step 1: Event Basics" : step === 2 ? "Step 2: Printing Details" : step === 3 ? "Step 3: Delivery Address" : "Step 4: Review & Confirm"}
             </p>
 
             {/* Stepper UI */}
-            <div className="flex items-center justify-between mb-8 relative">
-                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-full h-1 bg-muted -z-10"></div>
-                <div className="absolute left-0 top-1/2 -translate-y-1/2 h-1 bg-primary -z-10 transition-all" style={{ width: `${((step - 1) / 3) * 100}%` }}></div>
+            <div className="flex items-center justify-between mb-12 relative max-w-xl mx-auto">
+                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-full h-1 bg-muted/50 -z-10 rounded-full"></div>
+                <motion.div 
+                    className="absolute left-0 top-1/2 -translate-y-1/2 h-1 bg-primary -z-10 rounded-full" 
+                    initial={{ width: 0 }}
+                    animate={{ width: `${((step - 1) / 3) * 100}%` }}
+                    transition={{ duration: 0.5, ease: "easeInOut" }}
+                />
 
                 {[1, 2, 3, 4].map(i => (
-                    <div key={i} className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${step >= i ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground border border-background'}`}>
-                        {i}
-                    </div>
+                    <motion.div 
+                        initial={false}
+                        animate={{ 
+                            scale: step === i ? 1.2 : 1,
+                            backgroundColor: step >= i ? "var(--color-primary)" : "var(--color-muted)",
+                            color: step >= i ? "var(--color-primary-foreground)" : "var(--color-muted-foreground)",
+                            borderColor: step >= i ? "transparent" : "var(--color-border)"
+                        }}
+                        key={i} 
+                        className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm shadow-sm transition-colors border`}
+                    >
+                        {step > i ? "✓" : i}
+                    </motion.div>
                 ))}
             </div>
 
-            <div className="bg-card border rounded-xl shadow-sm p-6 md:p-8">
+            <div className="bg-card/80 backdrop-blur-sm border rounded-2xl shadow-xl p-6 md:p-10 overflow-hidden relative">
+                <AnimatePresence mode="wait">
+                    <motion.div key={step} variants={fadeVariants} initial="initial" animate="animate" exit="exit" className="w-full">
                 {/* STEP 1: Basic Customization */}
                 {step === 1 && (
                     <div className="space-y-6 shadow-none">
@@ -529,8 +521,10 @@ function CheckoutWizard() {
                         </div>
                     </div>
                 )}
+                    </motion.div>
+                </AnimatePresence>
             </div>
-        </div>
+        </motion.div>
     );
 }
 

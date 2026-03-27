@@ -3,14 +3,14 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { api } from "@/lib/api";
-import Link from "next/link";
+import { Link } from 'react-router-dom';
 import { authService } from "@/services/auth.service";
-import { useRouter } from "next/navigation";
+import { useNavigate } from 'react-router-dom';
 
 export default function AdminOrdersPage() {
     const [orders, setOrders] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
-    const router = useRouter();
+    const router = useNavigate();
 
     useEffect(() => {
         authService.getCurrentUser()
@@ -18,11 +18,11 @@ export default function AdminOrdersPage() {
                 if (user.role === 'admin') {
                     fetchOrders();
                 } else {
-                    router.push('/admin');
+                    navigate('/admin');
                 }
             })
             .catch(() => {
-                router.push('/admin');
+                navigate('/admin');
             });
     }, [router]);
 
@@ -86,7 +86,7 @@ export default function AdminOrdersPage() {
                                         </span>
                                     </td>
                                     <td className="px-6 py-4 text-right">
-                                        <Link href={`/admin/orders/${order.id}`} target="_blank">
+                                        <Link to={`/admin/orders/${order.id}`} target="_blank">
                                             <Button variant="ghost" size="sm" className="text-primary hover:bg-primary/10">
                                                 View Details
                                             </Button>

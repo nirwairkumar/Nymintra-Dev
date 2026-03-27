@@ -5,13 +5,14 @@ import { api } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { authService } from "@/services/auth.service";
-import Link from "next/link";
+import { Link } from 'react-router-dom';
 import { ArrowLeft } from "lucide-react";
 import React from 'react';
 
-export default function CustomerOrderDetailPage({ params }: { params: Promise<{ id: string }> }) {
-    const resolvedParams = React.use(params);
-    const orderId = resolvedParams.id;
+import { useParams } from 'react-router-dom';
+
+export default function CustomerOrderDetailPage() {
+    const { id: orderId } = useParams();
 
     const [order, setOrder] = useState<any>(null);
     const [supportConfig, setSupportConfig] = useState<{ enabled: boolean, text: string }>({ enabled: false, text: "" });
@@ -61,7 +62,7 @@ export default function CustomerOrderDetailPage({ params }: { params: Promise<{ 
         return (
             <div className="container mx-auto p-4 md:p-8 max-w-3xl text-center space-y-4 pt-12">
                 <p className="text-destructive font-medium">{error}</p>
-                <Link href="/orders">
+                <Link to="/orders">
                     <Button variant="outline">Back to Orders</Button>
                 </Link>
             </div>
@@ -76,7 +77,7 @@ export default function CustomerOrderDetailPage({ params }: { params: Promise<{ 
     return (
         <div className="container mx-auto p-4 md:p-8 space-y-6 max-w-4xl min-h-[60vh]">
             <div className="mb-4">
-                <Link href="/orders">
+                <Link to="/orders">
                     <Button variant="ghost" size="sm" className="-ml-4 text-muted-foreground hover:text-foreground">
                         <ArrowLeft className="mr-2 h-4 w-4" />
                         Back to My Orders
