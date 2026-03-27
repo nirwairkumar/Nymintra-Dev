@@ -8,6 +8,10 @@ app = FastAPI(
     description="Backend API for Nymintra",
     version="1.0.0"
 )
+from fastapi.middleware.gzip import GZipMiddleware
+
+# Set up GZip compression
+app.add_middleware(GZipMiddleware, minimum_size=1000)
 
 # Set up CORS for the frontend
 app.add_middleware(
