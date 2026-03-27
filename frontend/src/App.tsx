@@ -16,12 +16,13 @@ const AdminDesigns = lazy(() => import('@/pages/admin/Designs'));
 const AdminOrders = lazy(() => import('@/pages/admin/Orders'));
 const AdminSettings = lazy(() => import('@/pages/admin/Settings'));
 
+
 // Layout wrapper for the main site
 const AppLayout = () => {
   return (
     <div className="antialiased min-h-screen flex flex-col font-sans">
       <Navbar />
-      
+
       <main className="flex-1 w-full mx-auto">
         <Suspense fallback={<div className="flex h-64 items-center justify-center"><div className="w-8 h-8 rounded-full border-4 border-primary border-t-transparent animate-spin"></div></div>}>
           <Outlet />
@@ -58,7 +59,7 @@ const AppLayout = () => {
           </div>
         </div>
       </footer>
-      
+
       {/* Mobile Bottom Nav Spacer */}
       <div className="h-16 md:hidden"></div>
     </div>
@@ -74,12 +75,12 @@ function App() {
           <Route path="login" element={<Login />} />
           <Route path="register" element={<Register />} />
           <Route path="verify" element={<Verify />} />
-          
+
           <Route path="cards">
             <Route index element={<Cards />} />
             <Route path=":slug" element={<CardDetail />} />
           </Route>
-          
+
           <Route path="checkout/:id" element={<Checkout />} />
           <Route path="orders" element={<Orders />} />
           <Route path="orders/:id" element={<Orders />} />
@@ -89,7 +90,7 @@ function App() {
           <Route path="admin/designs" element={<AdminDesigns />} />
           <Route path="admin/orders" element={<AdminOrders />} />
           <Route path="admin/settings" element={<AdminSettings />} />
-          
+
           <Route path="*" element={<div className="py-20 text-center font-serif text-3xl">Page Not Found</div>} />
         </Route>
       </Routes>
