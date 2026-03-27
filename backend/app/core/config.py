@@ -21,7 +21,14 @@ class Settings(BaseSettings):
     RAZORPAY_KEY_ID: str = ""
     RAZORPAY_KEY_SECRET: str = ""
 
+    # Pydantic configuration
+    model_config = {
+        "env_file": ".env",
+        "extra": "ignore"
+    }
+
     class Config:
         env_file = ".env"
+        extra = "ignore"
 
 settings = Settings()
