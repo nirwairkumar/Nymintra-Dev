@@ -109,7 +109,7 @@ export default function Home() {
               { id: "puja", name: "Religious Puja", icon: "🪔", desc: "Auspicious blessings", color: "from-orange-500/10 to-amber-500/5", glow: "group-hover:shadow-orange-500/20", text: "text-orange-700 dark:text-orange-400" },
             ].map((cat) => (
               <motion.div key={cat.id} variants={fadeInUp}>
-                <Link to={`/cards/${cat.id}`} className={`group relative overflow-hidden rounded-2xl border border-border/50 bg-background/50 backdrop-blur-sm p-8 shadow-sm transition-all duration-500 hover:-translate-y-2 hover:shadow-xl ${cat.glow} flex flex-col items-center text-center gap-4`}>
+                <Link to={cat.id === 'all' ? '/cards' : `/cards?category=${cat.id}`} className={`group relative overflow-hidden rounded-2xl border border-border/50 bg-background/50 backdrop-blur-sm p-8 shadow-sm transition-all duration-500 hover:-translate-y-2 hover:shadow-xl ${cat.glow} flex flex-col items-center text-center gap-4`}>
                   <div className={`absolute inset-0 bg-gradient-to-br ${cat.color} opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
                   <div className="relative z-10 p-5 rounded-full bg-background shadow-inner text-4xl transform transition-transform group-hover:scale-110 duration-500">
                     {cat.icon}
