@@ -29,7 +29,7 @@ interface CardDesign {
 
 // Fetch the design from the backend
 async function getDesignBySlug(slug: string): Promise<CardDesign | null> {
-    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
+    const apiUrl = import.meta.env.VITE_API_URL || 'https://nymintra-dev-production.up.railway.app/api/v1';
     try {
         const res = await fetch(`${apiUrl}/designs/${slug}`, { cache: 'no-store' });
         if (!res.ok) return null;

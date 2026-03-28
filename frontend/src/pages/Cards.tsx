@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 async function getDesigns(category?: string) {
-    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
+    const apiUrl = import.meta.env.VITE_API_URL || 'https://nymintra-dev-production.up.railway.app/api/v1';
     const url = new URL(`${apiUrl}/designs/`);
     if (category && category !== 'all') url.searchParams.append('category', category);
     try {
