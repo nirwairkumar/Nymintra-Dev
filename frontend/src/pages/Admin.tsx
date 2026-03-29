@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useMemo } from "react";
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -8,9 +9,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { api } from "@/lib/api";
 import {
-  BarChart3, Package, Settings as SettingsIcon, FilePlus, RefreshCw,
+  BarChart3, Package, Settings as SettingsIcon, RefreshCw,
   Truck, CheckCircle2, ChevronDown, ChevronUp, Plus,
-  Search, Download, Users, IndianRupee, Eye, Edit3, X,
+  Search, Download, Users, IndianRupee, Eye, Edit3,
   AlertTriangle, Phone, MapPin, Palette, Copy
 } from "lucide-react";
 import { authService } from "@/services/auth.service";
@@ -39,6 +40,7 @@ const STATUS_COLORS: Record<string, string> = {
 function cn(...classes: any[]) { return classes.filter(Boolean).join(" "); }
 
 export default function AdminDashboard() {
+  const navigate = useNavigate();
   // Data
   const [orders, setOrders] = useState<any[]>([]);
   const [designs, setDesigns] = useState<any[]>([]);
@@ -59,19 +61,9 @@ export default function AdminDashboard() {
   const [orderSearch, setOrderSearch] = useState("");
   const [orderStatusFilter, setOrderStatusFilter] = useState("all");
   const [selectedOrders, setSelectedOrders] = useState<string[]>([]);
-  const [showAddCard, setShowAddCard] = useState(false);
-  const [editingDesign, setEditingDesign] = useState<any>(null);
-  const [isUploading, setIsUploading] = useState(false);
   const [designViewMode, setDesignViewMode] = useState<"grid" | "list">("grid");
   const [designCategoryFilter, setDesignCategoryFilter] = useState("all");
   const [toast, setToast] = useState<{ msg: string; type: "ok" | "err" } | null>(null);
-
-  const [newCard, setNewCard] = useState({
-    name: "", slug: "", description: "", base_price: 15, print_price: 5,
-    available_stock: 1000, min_quantity: 50, thumbnail_url: "",
-    categories: ["wedding"], is_active: true, orientation: "portrait",
-    sort_order: 0, print_price_unit: 100, style: "",
-  });
 
   // Toast helper
   const showToast = (msg: string, type: "ok" | "err" = "ok") => {
@@ -197,27 +189,6 @@ export default function AdminDashboard() {
     });
     return Array.from(map.values()).sort((a, b) => b.totalSpend - a.totalSpend);
   }, [orders]);
-
-  // Upload handler
-  const handleImageUpload = async (file: File): Promise<string | null> => {
-    setIsUploading(true);
-    const formData = new FormData(); formData.append("file", file);
-    try { const res = await api.post("/designs/upload-image", formData); return res.data.url; }
-    catch { showToast("Image upload failed", "err"); return null; }
-    finally { setIsUploading(false); }
-  };
-
-  // Save design (create or update)
-  const saveDesign = async (data: any, id?: string) => {
-    try {
-      if (id) { await api.patch(`/designs/${id}`, data); showToast("Design updated"); }
-      else { await api.post("/designs/", data); showToast("Design created"); }
-      setShowAddCard(false); setEditingDesign(null); fetchDesigns();
-      setNewCard({ name: "", slug: "", description: "", base_price: 15, print_price: 5,
-        available_stock: 1000, min_quantity: 50, thumbnail_url: "", categories: ["wedding"],
-        is_active: true, orientation: "portrait", sort_order: 0, print_price_unit: 100, style: "" });
-    } catch { showToast("Failed to save design", "err"); }
-  };
 
   // ─── LOADING / LOGIN SCREENS ───
   if (authChecking && !isAdmin) return (
@@ -533,88 +504,9 @@ export default function AdminDashboard() {
               <div className="flex gap-2">
                 <Button variant={designViewMode === "grid" ? "default" : "outline"} size="sm" onClick={() => setDesignViewMode("grid")}><Package className="h-4 w-4" /></Button>
                 <Button variant={designViewMode === "list" ? "default" : "outline"} size="sm" onClick={() => setDesignViewMode("list")}><BarChart3 className="h-4 w-4" /></Button>
-                <Button onClick={() => { setShowAddCard(true); setEditingDesign(null); }} className="gap-1.5"><Plus className="h-4 w-4" />Add Card</Button>
+                <Button onClick={() => navigate("/admin/designs/upload")} className="gap-1.5"><Plus className="h-4 w-4" />Add Card</Button>
               </div>
             </div>
-
-            {/* Add/Edit Form */}
-            {(showAddCard || editingDesign) && (
-              <Card className="border-primary/20">
-                <CardHeader className="flex flex-row items-center justify-between">
-                  <CardTitle className="text-sm font-semibold">{editingDesign ? "Edit Card Design" : "Add New Card Design"}</CardTitle>
-                  <Button variant="ghost" size="sm" onClick={() => { setShowAddCard(false); setEditingDesign(null); }}><X className="h-4 w-4" /></Button>
-                </CardHeader>
-                <CardContent>
-                  {(() => {
-                    const d = editingDesign || newCard;
-                    const setD = (updates: any) => editingDesign ? setEditingDesign({ ...editingDesign, ...updates }) : setNewCard({ ...newCard, ...updates });
-                    return (
-                      <div className="grid lg:grid-cols-3 gap-6">
-                        <div className="lg:col-span-2 space-y-4">
-                          <div className="grid sm:grid-cols-2 gap-4">
-                            <div><Label className="text-xs">Card Name</Label><Input value={d.name} onChange={e => { setD({ name: e.target.value, slug: e.target.value.toLowerCase().replace(/ /g, "-").replace(/[^\w-]+/g, "") }); }} placeholder="Royal Wedding Gold" /></div>
-                            <div><Label className="text-xs">Slug</Label><Input value={d.slug} onChange={e => setD({ slug: e.target.value })} className="font-mono text-xs" /></div>
-                          </div>
-                          <div><Label className="text-xs">Description</Label><Textarea value={d.description || ""} onChange={e => setD({ description: e.target.value })} placeholder="Beautiful wedding invitation card with traditional Indian motifs..." rows={3} /></div>
-                          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                            <div><Label className="text-xs">Base Price (₹)</Label><Input type="number" value={d.base_price} onChange={e => setD({ base_price: Number(e.target.value) })} /></div>
-                            <div><Label className="text-xs">Print Price (₹)</Label><Input type="number" value={d.print_price} onChange={e => setD({ print_price: Number(e.target.value) })} /></div>
-                            <div><Label className="text-xs">Stock</Label><Input type="number" value={d.available_stock} onChange={e => setD({ available_stock: Number(e.target.value) })} /></div>
-                            <div><Label className="text-xs">Min Qty</Label><Input type="number" value={d.min_quantity} onChange={e => setD({ min_quantity: Number(e.target.value) })} /></div>
-                          </div>
-                          <div>
-                            <Label className="text-xs mb-2 block">Categories</Label>
-                            <div className="flex flex-wrap gap-2">
-                              {CATEGORIES.map(c => (
-                                <button key={c.value} onClick={() => {
-                                  const cats = d.categories || [];
-                                  setD({ categories: cats.includes(c.value) ? cats.filter((x: string) => x !== c.value) : [...cats, c.value] });
-                                }} className={cn("px-3 py-1.5 rounded-full text-xs font-medium border transition-colors",
-                                  (d.categories || []).includes(c.value) ? "bg-primary text-white border-primary" : "border-zinc-200 hover:border-primary/50")}>
-                                  {c.emoji} {c.label}
-                                </button>
-                              ))}
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-4">
-                            <div className="flex items-center gap-2"><Switch checked={d.is_active} onCheckedChange={v => setD({ is_active: v })} /><Label className="text-xs">Active</Label></div>
-                            <select className="text-xs border rounded-lg px-3 py-2" value={d.orientation || "portrait"} onChange={e => setD({ orientation: e.target.value })}>
-                              <option value="portrait">Portrait</option><option value="landscape">Landscape</option>
-                            </select>
-                          </div>
-                        </div>
-                        <div className="space-y-4">
-                          <div className="border-2 border-dashed rounded-xl aspect-[3/4] flex items-center justify-center bg-muted/20 relative overflow-hidden">
-                            {d.thumbnail_url ? (
-                              <><img src={d.thumbnail_url} className="w-full h-full object-cover" />
-                                <div className="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center">
-                                  <Button variant="destructive" size="sm" onClick={() => setD({ thumbnail_url: "" })}>Remove</Button>
-                                </div></>
-                            ) : (
-                              <label className="cursor-pointer text-center p-4">
-                                <FilePlus className="h-10 w-10 text-muted-foreground mx-auto mb-2" />
-                                <div className="text-xs text-muted-foreground">{isUploading ? "Uploading..." : "Click to upload image"}</div>
-                                <input type="file" className="hidden" accept="image/*" onChange={async e => {
-                                  const f = e.target.files?.[0]; if (!f) return;
-                                  const url = await handleImageUpload(f);
-                                  if (url) setD({ thumbnail_url: url });
-                                }} />
-                              </label>
-                            )}
-                          </div>
-                          <div className="flex gap-2">
-                            <Button variant="outline" className="flex-1" onClick={() => { setShowAddCard(false); setEditingDesign(null); }}>Cancel</Button>
-                            <Button className="flex-[2]" onClick={() => saveDesign(editingDesign || newCard, editingDesign?.id)}>
-                              {editingDesign ? "Update Card" : "Create Card"}
-                            </Button>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })()}
-                </CardContent>
-              </Card>
-            )}
 
             {/* Card Grid */}
             {designsLoading ? (
@@ -630,7 +522,7 @@ export default function AdminDashboard() {
                       </div>
                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-3">
                         <div className="flex gap-2 w-full">
-                          <Button size="sm" className="flex-1 h-8 text-xs bg-white text-black hover:bg-zinc-100" onClick={() => { setEditingDesign({ ...d }); setShowAddCard(false); }}><Edit3 className="h-3 w-3 mr-1" />Edit</Button>
+                          <Button size="sm" className="flex-1 h-8 text-xs bg-white text-black hover:bg-zinc-100" onClick={() => navigate('/admin/designs/upload?edit=' + d.id)}><Edit3 className="h-3 w-3 mr-1" />Edit</Button>
                           <Button size="sm" variant="destructive" className="h-8 w-8 p-0" onClick={async () => {
                             if (confirm("Deactivate this card?")) { await api.patch(`/designs/${d.id}`, { is_active: !d.is_active }); fetchDesigns(); }
                           }}>{d.is_active ? <Eye className="h-3 w-3" /> : <Eye className="h-3 w-3" />}</Button>
@@ -671,7 +563,7 @@ export default function AdminDashboard() {
                           <td className="p-3 text-center">₹{d.print_price}</td>
                           <td className="p-3 text-center"><span className={cn("font-semibold", (d.available_stock || 0) < 500 ? "text-destructive" : "")}>{d.available_stock}</span></td>
                           <td className="p-3 text-center"><span className={cn("text-[10px] font-semibold px-2 py-0.5 rounded-full", d.is_active ? "bg-green-100 text-green-700" : "bg-zinc-100 text-zinc-600")}>{d.is_active ? "Live" : "Draft"}</span></td>
-                          <td className="p-3 text-center"><Button variant="ghost" size="sm" onClick={() => { setEditingDesign({ ...d }); setShowAddCard(false); }}><Edit3 className="h-3.5 w-3.5" /></Button></td>
+                          <td className="p-3 text-center"><Button variant="ghost" size="sm" onClick={() => navigate('/admin/designs/upload?edit=' + d.id)}><Edit3 className="h-3.5 w-3.5" /></Button></td>
                         </tr>
                       ))}
                     </tbody>

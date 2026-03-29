@@ -14,8 +14,9 @@ const Orders = lazy(() => import('@/pages/Orders'));
 const Admin = lazy(() => import('@/pages/Admin'));
 const AdminDesigns = lazy(() => import('@/pages/admin/Designs'));
 const AdminOrders = lazy(() => import('@/pages/admin/Orders'));
+const AdminOrderDetail = lazy(() => import('@/pages/admin/orders/id'));
 const AdminSettings = lazy(() => import('@/pages/admin/Settings'));
-
+const AdminUploadCard = lazy(() => import('@/pages/admin/designs/Upload'));
 
 // Layout wrapper for the main site
 const AppLayout = () => {
@@ -88,7 +89,9 @@ function App() {
           {/* Admin Routes */}
           <Route path="admin" element={<Admin />} />
           <Route path="admin/designs" element={<AdminDesigns />} />
+          <Route path="admin/designs/upload" element={<AdminUploadCard />} />
           <Route path="admin/orders" element={<AdminOrders />} />
+          <Route path="admin/orders/:id" element={<AdminOrderDetail />} />
           <Route path="admin/settings" element={<AdminSettings />} />
 
           <Route path="*" element={<div className="py-20 text-center font-serif text-3xl">Page Not Found</div>} />
