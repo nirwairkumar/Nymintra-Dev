@@ -5,7 +5,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import RedirectResponse, JSONResponse
 from app.api import api_router
-from app.api.endpoints import auth, users, designs, orders, payments, settings, preview, form_templates
 from app.core.config import settings
 
 # Configure logging
@@ -52,10 +51,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(settings.router, prefix="/api/v1/settings", tags=["settings"])
-app.include_router(preview.router, prefix="/api/v1/preview", tags=["preview"])
-app.include_router(form_templates.router, prefix="/api/v1/form-templates", tags=["form-templates"])
-
+# All routers are now consolidated within api_router which is included below
 app.include_router(api_router, prefix=settings.API_V1_STR)
 
 @app.get("/", include_in_schema=False)
