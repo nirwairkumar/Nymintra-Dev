@@ -5,11 +5,8 @@ import { api } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { authService } from "@/services/auth.service";
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { ArrowLeft } from "lucide-react";
-import React from 'react';
-
-import { useParams } from 'react-router-dom';
 
 export default function CustomerOrderDetailPage() {
     const { id: orderId } = useParams();
@@ -23,7 +20,7 @@ export default function CustomerOrderDetailPage() {
 
     useEffect(() => {
         authService.getCurrentUser()
-            .then(user => {
+            .then(() => {
                 setAuthChecking(false);
                 fetchData();
             })

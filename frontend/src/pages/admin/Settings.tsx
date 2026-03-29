@@ -1,20 +1,20 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { api } from "@/lib/api";
 import { authService } from "@/services/auth.service";
-import { useNavigate } from 'react-router-dom';
 
 export default function AdminSettingsPage() {
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [supportEnabled, setSupportEnabled] = useState(true);
     const [supportText, setSupportText] = useState("");
-    const router = useNavigate();
+    const navigate = useNavigate();
 
     useEffect(() => {
         authService.getCurrentUser()
@@ -26,9 +26,9 @@ export default function AdminSettingsPage() {
                 }
             })
             .catch(() => {
-                navigate('/admin');
+                navigate(`/login?redirect=/admin/settings`);
             });
-    }, [router]);
+    }, [navigate]);
 
     const fetchSettings = async () => {
         try {

@@ -1,0 +1,9 @@
+src/pages/Admin.tsx(18,1): error TS6133: 'FormBuilder' is declared but its value is never read.
+src/pages/admin/Designs.tsx(27,39): error TS6133: 'card' is declared but its value is never read.
+src/pages/admin/FormBuilder.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
+src/pages/admin/Orders.tsx(26,9): error TS2304: Cannot find name 'router'.
+src/pages/admin/orders/id.tsx(3,8): error TS6133: 'React' is declared but its value is never read.
+src/pages/admin/Settings.tsx(25,21): error TS2552: Cannot find name 'navigate'. Did you mean 'navigator'?
+src/pages/admin/Settings.tsx(29,17): error TS2552: Cannot find name 'navigate'. Did you mean 'navigator'?
+src/pages/Home.tsx(1,1): error TS6133: 'React' is declared but its value is never read.
+src/pages/orders/id.tsx(3,8): error TS6133: 'React' is declared but its value is never read.

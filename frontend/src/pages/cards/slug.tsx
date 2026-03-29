@@ -167,7 +167,7 @@ export default function DesignDetailPage() {
                         {design.available_stock > 0 ? (
                             <Link to={`/checkout?design=${design.slug}`} className="block w-full">
                                 <Button size="lg" className="w-full text-lg h-14 shadow-lg hover:shadow-xl transition-all hover:-translate-y-1">
-                                    Customize and Checkout
+                                    Order Now
                                 </Button>
                             </Link>
                         ) : (

@@ -1,5 +1,5 @@
 import { useState, useEffect, Suspense } from "react";
-import { useNavigate, useSearchParams, Link } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { authService } from "@/services/auth.service";
 import { api } from "@/lib/api";
@@ -22,10 +22,12 @@ function CheckoutWizard() {
     const [design, setDesign] = useState<any>(null);
 
     // Form states
-    const [customization, setCustomization] = useState({
-        event_type: "", bride_name: "", groom_name: "", event_date: "", venue: "", extra_notes: "", print_color: "",
-        birthday_person: "", age_turning: "", event_title: "", organizer: "", time: ""
+    const [customization, setCustomization] = useState<any>({
+        event_type: "", print_color: "", 
+        form_responses: {} // Store dynamic form data here mapped by field.label
     });
+    
+    const [activeFormTemplate, setActiveFormTemplate] = useState<any>(null);
 
     const [giveDetailsByPhone, setGiveDetailsByPhone] = useState(true);
 
@@ -51,8 +53,20 @@ function CheckoutWizard() {
 
                 const updates: any = {};
                 if (fetchedDesign.print_colors && fetchedDesign.print_colors.length > 0) updates.print_color = fetchedDesign.print_colors[0];
-                if (fetchedDesign.categories && fetchedDesign.categories.length > 0) updates.event_type = fetchedDesign.categories[0];
-                setCustomization(prev => ({ ...prev, ...updates }));
+                
+                let evtType = "wedding";
+                if (fetchedDesign.categories && fetchedDesign.categories.length > 0) {
+                    evtType = fetchedDesign.categories[0];
+                    updates.event_type = evtType;
+                }
+                setCustomization((prev: any) => ({ ...prev, ...updates }));
+                
+                // Fetch dynamic form structure based on category
+                api.get(`/form-templates/category/${evtType}`).then(fRes => {
+                    setActiveFormTemplate(fRes.data);
+                }).catch(() => {
+                    setActiveFormTemplate(null);
+                });
             }).catch(err => console.error("Failed to load design", err));
         }
     }, [navigate, designSlug]);
@@ -155,7 +169,7 @@ function CheckoutWizard() {
 
             <h1 className="text-4xl md:text-5xl font-serif font-bold text-center mb-3 text-primary">Complete Your Order</h1>
             <p className="text-center text-muted-foreground mb-12 font-medium tracking-wide">
-                {step === 1 ? "Step 1: Event Basics" : step === 2 ? "Step 2: Printing Details" : step === 3 ? "Step 3: Delivery Address" : "Step 4: Review & Confirm"}
+                {step === 1 ? "Step 1: Event Basics" : step === 2 ? "Step 2: Printing Details" : step === 3 ? "Step 3: Delivery Address" : step === 4 ? "Step 4: Review & Confirm" : "Step 5: Order Confirmed"}
             </p>
 
             {/* Stepper UI */}
@@ -205,14 +219,7 @@ function CheckoutWizard() {
                                 </select>
                             </div>
 
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium">Event Date</label>
-                                <input type="date" className="w-full p-2 border rounded-md"
-                                    min={getMinDateString()}
-                                    value={customization.event_date}
-                                    onChange={e => setCustomization({ ...customization, event_date: e.target.value })}
-                                />
-                            </div>
+                            {/* No static Event Date field since the dynamic form handles it now */}
 
                             <div className="space-y-2">
                                 <label className="text-sm font-medium">Card Quantity</label>
@@ -267,7 +274,7 @@ function CheckoutWizard() {
                         )}
 
                         <div className="pt-6 flex justify-end">
-                            <Button onClick={handleNext} disabled={!customization.event_date}>Next: Printing Details</Button>
+                            <Button onClick={handleNext}>Next: Printing Details</Button>
                         </div>
                     </div>
                 )}
@@ -298,95 +305,72 @@ function CheckoutWizard() {
                             </div>
                         )}
 
-                        {/* Hidden dynamic forms - kept in state but not rendered for now per user request */}
-                        {!giveDetailsByPhone && (
+                        {/* Render Dynamic Form If Available */}
+                        {!giveDetailsByPhone && activeFormTemplate && (
                             <div className="space-y-4 transition-all duration-300">
-
-                                {(customization.event_type.toLowerCase() === 'wedding' || customization.event_type.toLowerCase() === 'engagement') && (
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <div className="space-y-2">
-                                            <label className="text-sm font-medium">Bride's Name</label>
-                                            <input type="text" className="w-full p-2 border rounded-md"
-                                                value={customization.bride_name}
-                                                onChange={e => setCustomization({ ...customization, bride_name: e.target.value })}
+                                {activeFormTemplate.fields.map((field: any) => (
+                                    <div key={field.id} className="space-y-2">
+                                        <label className="text-sm font-medium">
+                                            {field.label} {field.required && <span className="text-red-500">*</span>}
+                                        </label>
+                                        
+                                        {field.type === 'text' && (
+                                            <input type="text" className="w-full p-2 border rounded-md" 
+                                                placeholder={field.placeholder || ""}
+                                                value={customization.form_responses[field.label] || ""}
+                                                onChange={e => setCustomization({ ...customization, form_responses: { ...customization.form_responses, [field.label]: e.target.value }})}
+                                                required={field.required}
                                             />
-                                        </div>
-                                        <div className="space-y-2">
-                                            <label className="text-sm font-medium">Groom's Name</label>
-                                            <input type="text" className="w-full p-2 border rounded-md"
-                                                value={customization.groom_name}
-                                                onChange={e => setCustomization({ ...customization, groom_name: e.target.value })}
+                                        )}
+                                        
+                                        {field.type === 'textarea' && (
+                                            <textarea className="w-full p-2 border rounded-md" rows={3}
+                                                placeholder={field.placeholder || ""}
+                                                value={customization.form_responses[field.label] || ""}
+                                                onChange={e => setCustomization({ ...customization, form_responses: { ...customization.form_responses, [field.label]: e.target.value }})}
+                                                required={field.required}
                                             />
-                                        </div>
+                                        )}
+                                        
+                                        {field.type === 'date' && (
+                                            <input type="date" className="w-full p-2 border rounded-md" 
+                                                min={getMinDateString()}
+                                                value={customization.form_responses[field.label] || ""}
+                                                onChange={e => setCustomization({ ...customization, form_responses: { ...customization.form_responses, [field.label]: e.target.value }})}
+                                                required={field.required}
+                                            />
+                                        )}
+                                        
+                                        {field.type === 'time' && (
+                                            <input type="time" className="w-full p-2 border rounded-md" 
+                                                value={customization.form_responses[field.label] || ""}
+                                                onChange={e => setCustomization({ ...customization, form_responses: { ...customization.form_responses, [field.label]: e.target.value }})}
+                                                required={field.required}
+                                            />
+                                        )}
+                                        
+                                        {field.type === 'select' && (
+                                            <select className="w-full p-2 border rounded-md"
+                                                value={customization.form_responses[field.label] || ""}
+                                                onChange={e => setCustomization({ ...customization, form_responses: { ...customization.form_responses, [field.label]: e.target.value }})}
+                                                required={field.required}
+                                            >
+                                                <option value="">Select an option</option>
+                                                {(field.options || []).map((opt: string) => (
+                                                    <option key={opt} value={opt}>{opt}</option>
+                                                ))}
+                                            </select>
+                                        )}
                                     </div>
-                                )}
-
-                                {customization.event_type.toLowerCase() === 'birthday' && (
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <div className="space-y-2">
-                                            <label className="text-sm font-medium">Birthday Person Name</label>
-                                            <input type="text" className="w-full p-2 border rounded-md"
-                                                value={customization.birthday_person}
-                                                onChange={e => setCustomization({ ...customization, birthday_person: e.target.value })}
-                                            />
-                                        </div>
-                                        <div className="space-y-2">
-                                            <label className="text-sm font-medium">Age Turning</label>
-                                            <input type="text" className="w-full p-2 border rounded-md"
-                                                value={customization.age_turning}
-                                                onChange={e => setCustomization({ ...customization, age_turning: e.target.value })}
-                                            />
-                                        </div>
-                                    </div>
-                                )}
-
-                                {customization.event_type.toLowerCase() !== 'wedding' && customization.event_type.toLowerCase() !== 'engagement' && customization.event_type.toLowerCase() !== 'birthday' && (
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <div className="space-y-2">
-                                            <label className="text-sm font-medium">Event/Function Title</label>
-                                            <input type="text" className="w-full p-2 border rounded-md" placeholder="e.g. Diwali Puja, Corporate Gala"
-                                                value={customization.event_title}
-                                                onChange={e => setCustomization({ ...customization, event_title: e.target.value })}
-                                            />
-                                        </div>
-                                        <div className="space-y-2">
-                                            <label className="text-sm font-medium">Hosted By / Organizer</label>
-                                            <input type="text" className="w-full p-2 border rounded-md"
-                                                value={customization.organizer}
-                                                onChange={e => setCustomization({ ...customization, organizer: e.target.value })}
-                                            />
-                                        </div>
-                                    </div>
-                                )}
-
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div className="space-y-2">
-                                        <label className="text-sm font-medium">Event Time</label>
-                                        <input type="time" className="w-full p-2 border rounded-md"
-                                            value={customization.time}
-                                            onChange={e => setCustomization({ ...customization, time: e.target.value })}
-                                        />
-                                    </div>
-                                </div>
-
-                                <div className="space-y-2 mt-4">
-                                    <label className="text-sm font-medium">Venue Details</label>
-                                    <textarea className="w-full p-2 border rounded-md" rows={2}
-                                        value={customization.venue}
-                                        onChange={e => setCustomization({ ...customization, venue: e.target.value })}
-                                    ></textarea>
-                                </div>
-
-                                <div className="space-y-2">
-                                    <label className="text-sm font-medium">Additional Notes (Optional)</label>
-                                    <textarea className="w-full p-2 border rounded-md" rows={2} placeholder="Any specific instructions for our designers?"
-                                        value={customization.extra_notes}
-                                        onChange={e => setCustomization({ ...customization, extra_notes: e.target.value })}
-                                    ></textarea>
-                                </div>
+                                ))}
                             </div>
                         )}
-                        {/* End Hidden dynamic forms */}
+                        {/* If no template available and customer unchecks provide by phone, show placeholder message */}
+                        {!giveDetailsByPhone && !activeFormTemplate && (
+                           <div className="bg-amber-50 border border-amber-200 text-amber-800 text-sm p-4 rounded-md mt-4">
+                               No specific form available for this category yet. Please provide details securely over WhatsApp/Phone call.
+                           </div> 
+                        )}
 
                         <div className="pt-6 flex justify-between">
                             <Button variant="outline" onClick={handlePrev}>Back</Button>
@@ -461,15 +445,14 @@ function CheckoutWizard() {
                                 <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wider mb-2">Event Details</h3>
                                 <p className="font-medium">Design Slug: {designSlug}</p>
                                 <p>Quantity: {quantity} cards</p>
-                                <p>Date: {customization.event_date}</p>
                                 {giveDetailsByPhone ? (
-                                    <p className="text-amber-600 font-medium">Details to be provided via phone call or WhatsApp</p>
+                                    <p className="text-amber-600 font-medium mt-1">Details to be provided via phone call or WhatsApp.</p>
                                 ) : (
-                                    <>
-                                        {(customization.event_type.toLowerCase() === 'wedding' || customization.event_type.toLowerCase() === 'engagement') && <p>Names: {customization.bride_name} & {customization.groom_name}</p>}
-                                        {customization.event_type.toLowerCase() === 'birthday' && <p>Name: {customization.birthday_person} ({customization.age_turning})</p>}
-                                        {customization.event_type.toLowerCase() !== 'wedding' && customization.event_type.toLowerCase() !== 'engagement' && customization.event_type.toLowerCase() !== 'birthday' && <p>Event: {customization.event_title}</p>}
-                                    </>
+                                    <div className="mt-2 space-y-1">
+                                        {Object.entries(customization.form_responses || {}).map(([key, val]) => val ? (
+                                            <p key={key} className="text-xs break-words whitespace-pre-line"><span className="font-semibold">{key}:</span> {String(val)}</p>
+                                        ) : null)}
+                                    </div>
                                 )}
                             </div>
                             <div>

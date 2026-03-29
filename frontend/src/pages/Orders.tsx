@@ -3,24 +3,24 @@
 import { useState, useEffect } from "react";
 import { authService } from "@/services/auth.service";
 import { api } from "@/lib/api";
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 
-export default function OrdersPage() {
+export default function CustomerOrdersPage() {
     const [orders, setOrders] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
-    const [user, setUser] = useState<any>(null);
+    const navigate = useNavigate();
 
     useEffect(() => {
         authService.getCurrentUser()
             .then(data => {
-                setUser(data);
+                if (!data) throw new Error("Not authenticated");
                 fetchOrders();
             })
             .catch(() => {
-                window.location.href = '/login?redirect=/orders';
+                navigate('/login?redirect=/orders');
             });
-    }, []);
+    }, [navigate]);
 
     const fetchOrders = async () => {
         try {

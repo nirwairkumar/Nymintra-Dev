@@ -12,7 +12,7 @@ import {
   BarChart3, Package, Settings as SettingsIcon, RefreshCw,
   Truck, CheckCircle2, ChevronDown, ChevronUp, Plus,
   Search, Download, Users, IndianRupee, Eye, Edit3,
-  AlertTriangle, Phone, MapPin, Palette, Copy
+  AlertTriangle, Phone, MapPin, Palette, Copy, ListTodo
 } from "lucide-react";
 import { authService } from "@/services/auth.service";
 
@@ -250,6 +250,7 @@ export default function AdminDashboard() {
           <TabsTrigger value="overview" className="gap-1.5"><BarChart3 className="h-4 w-4" />Overview</TabsTrigger>
           <TabsTrigger value="orders" className="gap-1.5"><Truck className="h-4 w-4" />Orders</TabsTrigger>
           <TabsTrigger value="cards" className="gap-1.5"><Package className="h-4 w-4" />Cards</TabsTrigger>
+          <TabsTrigger value="forms" className="gap-1.5"><ListTodo className="h-4 w-4" />Forms</TabsTrigger>
           <TabsTrigger value="customers" className="gap-1.5"><Users className="h-4 w-4" />Customers</TabsTrigger>
           <TabsTrigger value="settings" className="gap-1.5"><SettingsIcon className="h-4 w-4" />Settings</TabsTrigger>
         </TabsList>

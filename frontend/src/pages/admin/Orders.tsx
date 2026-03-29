@@ -3,14 +3,13 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { api } from "@/lib/api";
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { authService } from "@/services/auth.service";
-import { useNavigate } from 'react-router-dom';
 
 export default function AdminOrdersPage() {
     const [orders, setOrders] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
-    const router = useNavigate();
+    const navigate = useNavigate();
 
     useEffect(() => {
         authService.getCurrentUser()
@@ -22,9 +21,9 @@ export default function AdminOrdersPage() {
                 }
             })
             .catch(() => {
-                navigate('/admin');
+                navigate(`/login?redirect=/admin/orders`);
             });
-    }, [router]);
+    }, [navigate]);
 
     const fetchOrders = async () => {
         try {
@@ -67,7 +66,7 @@ export default function AdminOrdersPage() {
                         ) : orders.length === 0 ? (
                             <tr><td colSpan={6} className="px-6 py-8 text-center text-muted-foreground">No orders found.</td></tr>
                         ) : (
-                            orders.map((order, i) => (
+                            orders.map((order) => (
                                 <tr key={order.id} className="hover:bg-muted/50 transition-colors">
                                     <td className="px-6 py-4 font-medium">{order.id.split('-')[0]}</td>
                                     <td className="px-6 py-4">

@@ -1,0 +1,19 @@
+src/components/layout/Navbar.tsx(10,5): error TS6133: 'DropdownMenuGroup' is declared but its value is never read.
+src/components/layout/Navbar.tsx(12,5): error TS6133: 'DropdownMenuLabel' is declared but its value is never read.
+src/pages/Admin.tsx(18,1): error TS6133: 'FormBuilder' is declared but its value is never read.
+src/pages/Admin.tsx(18,29): error TS2307: Cannot find module './FormBuilder' or its corresponding type declarations.
+src/pages/admin/Designs.tsx(27,37): error TS6133: 'cardId' is declared but its value is never read.
+src/pages/admin/Designs.tsx(27,53): error TS6133: 'currentStatus' is declared but its value is never read.
+src/pages/admin/FormBuilder.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
+src/pages/admin/FormBuilder.tsx(7,1): error TS6192: All imports in import declaration are unused.
+src/pages/admin/FormBuilder.tsx(7,79): error TS2307: Cannot find module '@/components/ui/select' or its corresponding type declarations.
+src/pages/admin/Orders.tsx(21,21): error TS2552: Cannot find name 'navigate'. Did you mean 'navigator'?
+src/pages/admin/Orders.tsx(25,17): error TS2552: Cannot find name 'navigate'. Did you mean 'navigator'?
+src/pages/admin/Orders.tsx(70,48): error TS6133: 'i' is declared but its value is never read.
+src/pages/admin/orders/id.tsx(3,8): error TS6133: 'React' is declared but its value is never read.
+src/pages/admin/Settings.tsx(25,21): error TS2552: Cannot find name 'navigate'. Did you mean 'navigator'?
+src/pages/admin/Settings.tsx(29,17): error TS2552: Cannot find name 'navigate'. Did you mean 'navigator'?
+src/pages/Home.tsx(1,1): error TS6133: 'React' is declared but its value is never read.
+src/pages/Orders.tsx(12,12): error TS6133: 'user' is declared but its value is never read.
+src/pages/orders/id.tsx(10,1): error TS6133: 'React' is declared but its value is never read.
+src/pages/orders/id.tsx(26,19): error TS6133: 'user' is declared but its value is never read.

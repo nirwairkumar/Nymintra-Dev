@@ -82,7 +82,7 @@ function App() {
             <Route path=":slug" element={<CardDetail />} />
           </Route>
 
-          <Route path="checkout/:id" element={<Checkout />} />
+          <Route path="checkout" element={<Checkout />} />
           <Route path="orders" element={<Orders />} />
           <Route path="orders/:id" element={<Orders />} />
 

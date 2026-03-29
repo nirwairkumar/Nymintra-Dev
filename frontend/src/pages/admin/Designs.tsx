@@ -24,7 +24,7 @@ export default function AdminDesignsPage() {
         }
     };
 
-    const toggleCardStatus = async (cardId: string, currentStatus: boolean) => {
+    const handleStatusToggle = async (_card: any) => {
         try {
             // Placeholder for toggle status API
             alert("Toggle status functionality to be implemented in Phase 6");
@@ -95,7 +95,7 @@ export default function AdminDesignsPage() {
                                         variant="outline"
                                         size="sm"
                                         className={`w-full ${card.is_active ? 'text-destructive hover:text-destructive' : 'text-green-600 hover:text-green-600'}`}
-                                        onClick={() => toggleCardStatus(card.id, card.is_active)}
+                                        onClick={() => handleStatusToggle(card)}
                                     >
                                         {card.is_active ? 'Disable' : 'Enable'}
                                     </Button>
