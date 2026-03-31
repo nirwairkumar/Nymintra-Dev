@@ -17,6 +17,9 @@ const AdminOrders = lazy(() => import('@/pages/admin/Orders'));
 const AdminOrderDetail = lazy(() => import('@/pages/admin/orders/id'));
 const AdminSettings = lazy(() => import('@/pages/admin/Settings'));
 const AdminUploadCard = lazy(() => import('@/pages/admin/designs/Upload'));
+const AdminLayout = lazy(() => import('@/components/layout/AdminLayout'));
+const AdminCustomers = lazy(() => import('@/pages/admin/Customers'));
+const AdminFormBuilder = lazy(() => import('@/pages/admin/FormBuilder'));
 
 // Layout wrapper for the main site
 const AppLayout = () => {
@@ -86,13 +89,17 @@ function App() {
           <Route path="orders" element={<Orders />} />
           <Route path="orders/:id" element={<Orders />} />
 
-          {/* Admin Routes */}
-          <Route path="admin" element={<Admin />} />
-          <Route path="admin/designs" element={<AdminDesigns />} />
-          <Route path="admin/designs/upload" element={<AdminUploadCard />} />
-          <Route path="admin/orders" element={<AdminOrders />} />
-          <Route path="admin/orders/:id" element={<AdminOrderDetail />} />
-          <Route path="admin/settings" element={<AdminSettings />} />
+          {/* Admin Routes with Unified Layout */}
+          <Route path="admin" element={<AdminLayout />}>
+              <Route index element={<Admin />} />
+              <Route path="designs" element={<AdminDesigns />} />
+              <Route path="designs/upload" element={<AdminUploadCard />} />
+              <Route path="orders" element={<AdminOrders />} />
+              <Route path="orders/:id" element={<AdminOrderDetail />} />
+              <Route path="customers" element={<AdminCustomers />} />
+              <Route path="forms" element={<AdminFormBuilder />} />
+              <Route path="settings" element={<AdminSettings />} />
+          </Route>
 
           <Route path="*" element={<div className="py-20 text-center font-serif text-3xl">Page Not Found</div>} />
         </Route>

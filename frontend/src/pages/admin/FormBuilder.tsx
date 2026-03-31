@@ -26,7 +26,7 @@ const FIELD_TYPES = [
   { value: "select", label: "Dropdown (Select)" },
 ];
 
-export function FormBuilder() {
+export default function FormBuilder() {
   const [activeCategory, setActiveCategory] = useState("wedding");
   const [template, setTemplate] = useState<any>(null);
   const [loading, setLoading] = useState(false);
