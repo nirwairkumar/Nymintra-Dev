@@ -146,42 +146,45 @@ export default function CardsCatalog() {
                                     <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-bl from-secondary/40 to-transparent z-10 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                                     
                                     <div className="aspect-[3/4] bg-muted relative overflow-hidden">
-                                        {design.thumbnail_url ? (
-                                            <img
-                                                src={design.thumbnail_url}
-                                                alt={design.name}
-                                                className="w-full h-full object-cover transition-transform duration-700 ease-in-out group-hover:scale-110"
-                                            />
-                                        ) : (
-                                            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-muted/50 to-muted">
-                                                <span className="text-muted-foreground/30 text-6xl">🎴</span>
-                                            </div>
-                                        )}
-                                        
-                                        {/* Overlay gradient */}
-                                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-end p-6">
-                                            <Link to={`/cards/${design.slug}`} className="w-full">
-                                                <Button className="w-full bg-white text-zinc-900 hover:bg-zinc-100 shadow-xl border-none font-semibold">
-                                                    Customize Design
-                                                </Button>
-                                            </Link>
-                                        </div>
+                                        <Link to={`/cards/${design.slug}`}>
+                                            {design.thumbnail_url ? (
+                                                <img
+                                                    src={design.thumbnail_url}
+                                                    alt={design.name}
+                                                    className="w-full h-full object-cover transition-transform duration-700 ease-in-out group-hover:scale-110"
+                                                />
+                                            ) : (
+                                                <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-muted/50 to-muted">
+                                                    <span className="text-muted-foreground/30 text-6xl">🎴</span>
+                                                </div>
+                                            )}
+                                        </Link>
                                     </div>
                                     <div className="p-5 flex flex-col flex-1 bg-gradient-to-b from-card to-card/95">
                                         <div className="flex justify-between items-start gap-2 mb-2">
-                                            <h3 className="font-semibold text-lg font-serif truncate text-foreground group-hover:text-primary transition-colors" title={design.name}>{design.name}</h3>
-                                            <span className="font-bold text-lg whitespace-nowrap text-primary">₹{design.base_price}</span>
+                                            <Link to={`/cards/${design.slug}`} className="truncate flex-1">
+                                                <h3 className="font-semibold text-lg font-serif truncate text-foreground group-hover:text-primary transition-colors" title={design.name}>{design.name}</h3>
+                                            </Link>
+                                            <span className="font-bold text-lg whitespace-nowrap text-primary flex flex-col items-end leading-none">
+                                                <span>₹{design.base_price}</span>
+                                                <span className="text-[10px] text-muted-foreground font-sans font-normal opacity-70">/card</span>
+                                            </span>
                                         </div>
                                         <p className="text-muted-foreground text-xs mb-4 uppercase tracking-wider font-medium">
                                             {design.categories?.slice(0, 2).join(" • ") || design.category || "General"}
                                         </p>
                                         <div className="mt-auto flex items-center justify-between text-xs text-muted-foreground border-t border-border/50 pt-3">
                                             {design.min_quantity && (
-                                                <span className="flex items-center gap-1.5">
-                                                    <svg xmlns="http://www.w3.org/0000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>
+                                                <span className="flex items-center gap-1.5 font-medium">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>
                                                     Min {design.min_quantity} qty
                                                 </span>
                                             )}
+                                            <Link to={`/cards/${design.slug}`}>
+                                                <Button size="sm" className="h-9 px-4 text-[11px] uppercase font-bold tracking-wider bg-primary text-primary-foreground hover:bg-primary/90 hover:scale-105 active:scale-95 transition-all rounded-xl shadow-md hover:shadow-lg">
+                                                    Order Now
+                                                </Button>
+                                            </Link>
                                         </div>
                                     </div>
                                 </motion.div>
