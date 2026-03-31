@@ -161,3 +161,40 @@ def update_design(
     except Exception as e:
         logger.exception(f"Failed to update design {id}")
         raise HTTPException(status_code=500, detail=f"Update failed: {str(e)}")
+
+@router.get("/admin/all", response_model=List[CardDesignResponse])
+def get_all_designs_admin(current_user: dict = Depends(get_current_user), supabase: Client = Depends(get_supabase)):
+    """
+    Retrieve ALL card designs (including inactive ones). Restricted to Admins.
+    """
+    if current_user.get("role") != "admin":
+        raise HTTPException(status_code=403, detail="Only admins can access this view")
+        
+    try:
+        response = supabase.table("card_designs").select("*").order("sort_order", desc=True).execute()
+        return response.data
+    except Exception as e:
+        logger.error(f"Error fetching all designs: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+
+@router.delete("/{id}")
+def delete_design(id: str, current_user: dict = Depends(get_current_user), supabase: Client = Depends(get_supabase)):
+    """
+    Permanently delete a card design. Restricted to Admins.
+    """
+    if current_user.get("role") != "admin":
+        raise HTTPException(status_code=403, detail="Only admins can delete cards")
+        
+    try:
+        # Check if exists
+        existing = supabase.table("card_designs").select("id").eq("id", id).execute()
+        if not existing.data:
+            raise HTTPException(status_code=404, detail="Design not found")
+            
+        response = supabase.table("card_designs").delete().eq("id", id).execute()
+        return {"status": "success", "message": "Design deleted successfully"}
+    except HTTPException as he:
+        raise he
+    except Exception as e:
+        logger.error(f"Error deleting design {id}: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Delete failed: {str(e)}")
