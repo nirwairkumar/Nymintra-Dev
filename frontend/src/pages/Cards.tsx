@@ -2,15 +2,16 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from 'react';
 import { motion, Variants } from 'framer-motion';
+import { api } from "@/lib/api";
 
 async function getDesigns(category?: string) {
-    const apiUrl = import.meta.env.VITE_API_URL || 'https://api.nymintra.com/api/v1';
-    const url = new URL(`${apiUrl}/designs/`);
-    if (category && category !== 'all') url.searchParams.append('category', category);
     try {
-        const res = await fetch(url.toString(), { cache: 'no-store' });
-        if (!res.ok) return [];
-        return await res.json();
+        const params: any = {};
+        if (category && category !== 'all') {
+            params.category = category;
+        }
+        const res = await api.get('/designs', { params });
+        return res.data;
     } catch (e) {
         console.error("Failed to fetch designs", e);
         return [];

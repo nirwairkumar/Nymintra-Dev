@@ -1,6 +1,8 @@
 import { Button } from "@/components/ui/button";
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { ProductGallery } from "@/components/cards/ProductGallery";
+import { useState, useEffect } from 'react';
+import { api } from "@/lib/api";
 
 // Define the interface for the design
 interface CardDesign {
@@ -29,18 +31,14 @@ interface CardDesign {
 
 // Fetch the design from the backend
 async function getDesignBySlug(slug: string): Promise<CardDesign | null> {
-    const apiUrl = import.meta.env.VITE_API_URL || 'https://api.nymintra.com/api/v1';
     try {
-        const res = await fetch(`${apiUrl}/designs/${slug}`, { cache: 'no-store' });
-        if (!res.ok) return null;
-        return await res.json();
-    } catch {
+        const res = await api.get(`/designs/${slug}`);
+        return res.data;
+    } catch (e) {
+        console.error("Failed to fetch design", e);
         return null;
     }
 }
-
-import { useParams } from 'react-router-dom';
-import { useState, useEffect } from 'react';
 
 export default function DesignDetailPage() {
     const { slug } = useParams();
