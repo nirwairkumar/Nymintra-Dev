@@ -6,7 +6,7 @@ from app.schemas.form_template import FormTemplateCreate, FormTemplateUpdate, Fo
 
 router = APIRouter()
 
-@router.post("/", response_model=FormTemplateResponse)
+@router.post("", response_model=FormTemplateResponse)
 def create_form_template(
     template_in: FormTemplateCreate,
     current_user: dict = Depends(get_current_user),
@@ -27,7 +27,7 @@ def create_form_template(
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.get("/", response_model=List[FormTemplateResponse])
+@router.get("", response_model=List[FormTemplateResponse])
 def get_all_form_templates(
     current_user: dict = Depends(get_current_user),
     supabase = Depends(get_supabase)

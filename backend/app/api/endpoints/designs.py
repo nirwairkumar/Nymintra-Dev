@@ -54,7 +54,7 @@ async def upload_card_image(file: UploadFile = File(...), current_user: dict = D
         logger.error(f"Image upload failed: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Upload failed: {str(e)}")
 
-@router.post("/", response_model=CardDesignResponse)
+@router.post("", response_model=CardDesignResponse)
 def create_design(design_in: CardDesignCreate, current_user: dict = Depends(get_current_user), supabase: Client = Depends(get_supabase)):
     """
     Create a new card design. Restricted to Admins.
@@ -91,7 +91,7 @@ def create_design(design_in: CardDesignCreate, current_user: dict = Depends(get_
              raise HTTPException(status_code=400, detail=f"Duplicate card or slug: {err_detail}")
         raise HTTPException(status_code=400, detail=f"Database error: {err_detail}")
 
-@router.get("/", response_model=List[CardDesignResponse])
+@router.get("", response_model=List[CardDesignResponse])
 def get_designs(skip: int = 0, limit: int = 20, category: str = None, supabase: Client = Depends(get_supabase)):
     """
     Retrieve card designs. Filters by published/active status.

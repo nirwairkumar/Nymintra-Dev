@@ -68,17 +68,21 @@ export function Navbar() {
                     <span className="font-serif text-3xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">Nymintra</span>
                 </Link>
 
-                {/* Desktop Nav */}
-                <nav className="hidden md:flex items-center space-x-8 text-sm font-medium">
-                    <Link to="/" className={`transition-colors hover:text-primary ${pathname === '/' ? 'text-primary font-semibold' : 'text-foreground/80'}`}>Home</Link>
-                    <Link to="/cards" className={`transition-colors hover:text-primary ${pathname.startsWith('/cards') ? 'text-primary font-semibold' : 'text-foreground/80'}`}>Cards</Link>
-                    <Link to="/about" className={`transition-colors hover:text-primary ${pathname === '/about' ? 'text-primary font-semibold' : 'text-foreground/80'}`}>About</Link>
-                </nav>
+                {/* Desktop Nav - Hidden in Admin Dashboard */}
+                {!pathname.startsWith('/admin') && (
+                    <nav className="hidden md:flex items-center space-x-8 text-sm font-medium">
+                        <Link to="/" className={`transition-colors hover:text-primary ${pathname === '/' ? 'text-primary font-semibold' : 'text-foreground/80'}`}>Home</Link>
+                        <Link to="/cards" className={`transition-colors hover:text-primary ${pathname.startsWith('/cards') ? 'text-primary font-semibold' : 'text-foreground/80'}`}>Cards</Link>
+                        <Link to="/about" className={`transition-colors hover:text-primary ${pathname === '/about' ? 'text-primary font-semibold' : 'text-foreground/80'}`}>About</Link>
+                    </nav>
+                )}
 
                 <div className="flex items-center space-x-5">
-                    <Link to="/cart" className="relative p-2 rounded-full text-foreground/80 hover:text-primary hover:bg-primary/5 transition-colors">
-                        <svg xmlns="http://www.w3.org/0000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="8" cy="21" r="1" /><circle cx="19" cy="21" r="1" /><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12" /></svg>
-                    </Link>
+                    {!pathname.startsWith('/admin') && (
+                        <Link to="/cart" className="relative p-2 rounded-full text-foreground/80 hover:text-primary hover:bg-primary/5 transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="8" cy="21" r="1" /><circle cx="19" cy="21" r="1" /><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12" /></svg>
+                        </Link>
+                    )}
 
                     {user ? (
                         <DropdownMenu>
@@ -98,6 +102,20 @@ export function Navbar() {
                                     </div>
                                 </div>
                                 <DropdownMenuSeparator />
+                                
+                                {user.role === 'admin' && (
+                                    <>
+                                        <div className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Dashboards</div>
+                                        <DropdownMenuItem className="cursor-pointer font-semibold text-primary hover:bg-primary/5 rounded-md mx-1" onClick={() => navigate('/admin')}>
+                                            Admin Dashboard
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem className="cursor-pointer font-semibold text-secondary hover:bg-secondary/5 rounded-md mx-1" onClick={() => navigate('/')}>
+                                            User Dashboard
+                                        </DropdownMenuItem>
+                                        <DropdownMenuSeparator />
+                                    </>
+                                )}
+
                                 <DropdownMenuItem className="cursor-pointer font-medium hover:bg-primary/5 rounded-md mx-1" onClick={() => navigate('/profile')}>
                                     Profile
                                 </DropdownMenuItem>
