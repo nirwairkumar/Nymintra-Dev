@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { useState, useEffect } from 'react';
 import { motion, Variants } from 'framer-motion';
 import { api } from "@/lib/api";
+import { useTranslation } from 'react-i18next';
 
 async function getDesigns(category?: string) {
     try {
@@ -37,6 +38,7 @@ const itemVariants: Variants = {
 export default function CardsCatalog() {
     const [searchParams] = useSearchParams();
     const category = searchParams.get('category') || 'all';
+    const { t } = useTranslation();
     
     const [designs, setDesigns] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
@@ -51,13 +53,13 @@ export default function CardsCatalog() {
     }, [category]);
 
     const categories = [
-        { id: 'all', name: 'All Collections' },
-        { id: 'wedding', name: 'Wedding (Shaadi)' },
-        { id: 'engagement', name: 'Engagement (Roka)' },
-        { id: 'haldi', name: 'Haldi & Mehndi' },
-        { id: 'puja', name: 'Religious / Puja' },
-        { id: 'anniversary', name: 'Anniversary' },
-        { id: 'birthday', name: 'Birthday' },
+        { id: 'all', name: t('cards.allCollections') },
+        { id: 'wedding', name: t('cards.wedding') },
+        { id: 'engagement', name: t('cards.engagement') },
+        { id: 'haldi', name: t('cards.haldi') },
+        { id: 'puja', name: t('cards.puja') },
+        { id: 'anniversary', name: t('cards.anniversary') },
+        { id: 'birthday', name: t('cards.birthday') },
     ];
 
     return (
@@ -77,21 +79,21 @@ export default function CardsCatalog() {
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ duration: 0.5, delay: 0.1 }}
-                        className="sticky top-24 backdrop-blur-md bg-card/50 p-6 rounded-2xl border border-primary/10 shadow-sm"
+                        className="sticky top-24 backdrop-blur-md bg-card/50 p-4 md:p-6 rounded-2xl border border-primary/10 shadow-sm"
                     >
-                        <h2 className="font-serif text-2xl font-bold mb-6 text-primary border-b border-primary/10 pb-4">Aesthetics</h2>
-                        <ul className="space-y-3">
+                        <h2 className="font-serif text-xl md:text-2xl font-bold mb-4 md:mb-6 text-primary border-b border-primary/10 pb-3 md:pb-4">{t('cards.sidebarTitle')}</h2>
+                        <ul className="flex overflow-x-auto md:flex-col gap-3 md:gap-0 md:space-y-3 pb-2 md:pb-0 hide-scrollbar">
                             {categories.map(c => (
-                                <li key={c.id}>
+                                <li key={c.id} className="shrink-0">
                                     <Link
                                         to={c.id === 'all' ? '/cards' : `/cards?category=${c.id}`}
-                                        className={`flex items-center justify-between py-2 px-4 rounded-xl transition-all duration-300 ${category === c.id
-                                            ? 'bg-gradient-to-r from-primary/10 to-transparent text-primary font-semibold border-l-4 border-primary'
-                                            : 'hover:bg-muted/50 text-muted-foreground hover:text-foreground border-l-4 border-transparent'
+                                        className={`flex items-center justify-between py-2 px-4 rounded-full md:rounded-xl transition-all duration-300 whitespace-nowrap ${category === c.id
+                                            ? 'bg-primary text-primary-foreground md:bg-primary/0 md:bg-gradient-to-r md:from-primary/10 md:to-transparent md:text-primary font-semibold md:border-l-4 md:border-primary shadow-sm md:shadow-none'
+                                            : 'bg-muted/50 md:bg-transparent hover:bg-muted text-muted-foreground hover:text-foreground md:border-l-4 border-transparent'
                                             }`}
                                     >
                                         {c.name}
-                                        {category === c.id && <motion.div layoutId="active-indicator" className="w-1.5 h-1.5 rounded-full bg-primary" />}
+                                        {category === c.id && <motion.div layoutId="active-indicator" className="hidden md:block w-1.5 h-1.5 rounded-full bg-primary" />}
                                     </Link>
                                 </li>
                             ))}
@@ -107,10 +109,10 @@ export default function CardsCatalog() {
                         className="mb-10"
                     >
                         <h1 className="text-4xl md:text-5xl font-serif font-bold text-foreground mb-4">
-                            Premium Invitations
+                            {t('cards.pageTitle')}
                         </h1>
                         <p className="text-muted-foreground text-lg max-w-2xl leading-relaxed">
-                            Discover deeply rooted, culturally rich designs tailored for your unforgettable moments.
+                            {t('cards.pageSubtitle')}
                         </p>
                     </motion.div>
 
@@ -126,8 +128,8 @@ export default function CardsCatalog() {
                             animate={{ opacity: 1, scale: 1 }}
                             className="py-24 text-center border border-dashed border-primary/20 rounded-2xl bg-primary/5 backdrop-blur-sm"
                         >
-                            <p className="text-muted-foreground text-lg font-medium">We couldn't find any designs in this collection currently.</p>
-                            <Button variant="outline" className="mt-6 border-primary/20 hover:bg-primary sm:hover:text-primary-foreground text-primary">Browse All</Button>
+                            <p className="text-muted-foreground text-lg font-medium">{t('cards.emptyState')}</p>
+                            <Button variant="outline" className="mt-6 border-primary/20 hover:bg-primary sm:hover:text-primary-foreground text-primary">{t('cards.browseAll')}</Button>
                         </motion.div>
                     ) : (
                         <motion.div 
@@ -167,7 +169,7 @@ export default function CardsCatalog() {
                                             </Link>
                                             <span className="font-bold text-lg whitespace-nowrap text-primary flex flex-col items-end leading-none">
                                                 <span>₹{design.base_price}</span>
-                                                <span className="text-[10px] text-muted-foreground font-sans font-normal opacity-70">/card</span>
+                                                <span className="text-[10px] text-muted-foreground font-sans font-normal opacity-70">{t('cards.perCard')}</span>
                                             </span>
                                         </div>
                                         <p className="text-muted-foreground text-xs mb-4 uppercase tracking-wider font-medium">
@@ -177,12 +179,12 @@ export default function CardsCatalog() {
                                             {design.min_quantity && (
                                                 <span className="flex items-center gap-1.5 font-medium">
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>
-                                                    Min {design.min_quantity} qty
+                                                    {t('cards.minQty', { count: design.min_quantity })}
                                                 </span>
                                             )}
                                             <Link to={`/cards/${design.slug}`}>
                                                 <Button size="sm" className="h-9 px-4 text-[11px] uppercase font-bold tracking-wider bg-primary text-primary-foreground hover:bg-primary/90 hover:scale-105 active:scale-95 transition-all rounded-xl shadow-md hover:shadow-lg">
-                                                    Order Now
+                                                    {t('cards.orderNow')}
                                                 </Button>
                                             </Link>
                                         </div>

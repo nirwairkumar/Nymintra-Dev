@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { authService } from "@/services/auth.service";
 import { api } from "@/lib/api";
 import { motion, AnimatePresence } from "framer-motion";
+import { useTranslation } from 'react-i18next';
 
 const fadeVariants = {
     initial: { opacity: 0, y: 10 },
@@ -15,6 +16,7 @@ function CheckoutWizard() {
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
     const designSlug = searchParams.get('design');
+    const { t } = useTranslation();
 
     const [step, setStep] = useState<number>(1);
     const [isLoading, setIsLoading] = useState(false);
@@ -83,7 +85,7 @@ function CheckoutWizard() {
 
     const getMinDateString = () => new Date().toISOString().split("T")[0];
 
-    if (!user) return <div className="py-24 text-center">Loading authentication state...</div>;
+    if (!user) return <div className="py-24 text-center">{t('checkout.loadingAuth')}</div>;
 
     const handleNext = () => setStep(s => s + 1);
     const handlePrev = () => setStep(s => s - 1);
@@ -105,7 +107,7 @@ function CheckoutWizard() {
             }
         } catch (e: any) {
             console.error("Order failed", e);
-            alert("Order submission failed. " + (e.response?.data?.detail || ""));
+            alert(`${t('checkout.orderFailed')} ` + (e.response?.data?.detail || ""));
         } finally {
             setIsLoading(false);
         }
@@ -133,7 +135,7 @@ function CheckoutWizard() {
                             await submitFinalOrder(response);
                         }
                     } catch (verifyError: any) {
-                        alert("Payment verification failed. Please contact support.");
+                        alert(t('checkout.paymentVerifyFailed'));
                         setIsLoading(false);
                     }
                 },
@@ -148,12 +150,12 @@ function CheckoutWizard() {
 
             const rzp = new (window as any).Razorpay(options);
             rzp.on('payment.failed', function (response: any) {
-                alert(`Payment Failed: ${response.error.description}`);
+                alert(t('checkout.paymentFailed', { error: response.error.description }));
                 setIsLoading(false);
             });
             rzp.open();
         } catch (error: any) {
-            alert("Failed to initiate payment. " + (error.response?.data?.detail || ""));
+            alert(`${t('checkout.paymentInitFailed')} ` + (error.response?.data?.detail || ""));
             setIsLoading(false);
         }
     };
@@ -167,9 +169,9 @@ function CheckoutWizard() {
             <div className="absolute top-0 right-10 w-64 h-64 bg-secondary/10 rounded-full blur-3xl -z-10"></div>
             <div className="absolute bottom-10 left-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -z-10"></div>
 
-            <h1 className="text-4xl md:text-5xl font-serif font-bold text-center mb-3 text-primary">Complete Your Order</h1>
+            <h1 className="text-4xl md:text-5xl font-serif font-bold text-center mb-3 text-primary">{t('checkout.title')}</h1>
             <p className="text-center text-muted-foreground mb-12 font-medium tracking-wide">
-                {step === 1 ? "Step 1: Event Basics" : step === 2 ? "Step 2: Printing Details" : step === 3 ? "Step 3: Delivery Address" : step === 4 ? "Step 4: Review & Confirm" : "Step 5: Order Confirmed"}
+                {step === 1 ? t('checkout.step1Label') : step === 2 ? t('checkout.step2Label') : step === 3 ? t('checkout.step3Label') : step === 4 ? t('checkout.step4Label') : "Step 5: Order Confirmed"}
             </p>
 
             {/* Stepper UI */}
@@ -205,11 +207,11 @@ function CheckoutWizard() {
                 {/* STEP 1: Basic Customization */}
                 {step === 1 && (
                     <div className="space-y-6 shadow-none">
-                        <h2 className="text-xl font-bold mb-4 border-b pb-2">Basic Information</h2>
+                        <h2 className="text-xl font-bold mb-4 border-b pb-2">{t('checkout.basicInfo')}</h2>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="space-y-2">
-                                <label className="text-sm font-medium">Event Type</label>
+                                <label className="text-sm font-medium">{t('checkout.eventType')}</label>
                                 <select className="w-full p-2 border rounded-md capitalize"
                                     value={customization.event_type}
                                     onChange={e => setCustomization({ ...customization, event_type: e.target.value })}>
@@ -219,10 +221,8 @@ function CheckoutWizard() {
                                 </select>
                             </div>
 
-                            {/* No static Event Date field since the dynamic form handles it now */}
-
                             <div className="space-y-2">
-                                <label className="text-sm font-medium">Card Quantity</label>
+                                <label className="text-sm font-medium">{t('checkout.cardQuantity')}</label>
                                 <input
                                     type="number"
                                     className="w-full p-2 border rounded-md"
@@ -238,17 +238,17 @@ function CheckoutWizard() {
                                     }}
                                 />
                                 <p className="text-[10px] text-muted-foreground mt-1">
-                                    Must be a multiple of 25. {design?.min_quantity ? `Minimum order: ${design.min_quantity} units.` : ""}
+                                    {t('checkout.qtyHint')} {design?.min_quantity ? t('checkout.minOrder', { count: design.min_quantity }) : ""}
                                 </p>
                                 {design && design.available_stock !== undefined && (
-                                    <p className="text-[10px] text-muted-foreground">Available in stock: {design.available_stock}</p>
+                                    <p className="text-[10px] text-muted-foreground">{t('checkout.availableStock', { count: design.available_stock })}</p>
                                 )}
                             </div>
                         </div>
 
                         {design && design.print_colors && design.print_colors.length > 0 && (
                             <div className="space-y-2 mt-4">
-                                <label className="text-sm font-medium">Select Print Color</label>
+                                <label className="text-sm font-medium">{t('checkout.selectPrintColor')}</label>
                                 <div className="flex flex-wrap gap-3">
                                     {design.print_colors.map((color: string) => (
                                         <label key={color} className={`cursor-pointer flex items-center gap-2 border rounded-md p-3 transition-all ${customization.print_color === color ? 'border-primary bg-primary/5 ring-1 ring-primary/20' : 'hover:border-primary/50'}`}>
@@ -274,7 +274,7 @@ function CheckoutWizard() {
                         )}
 
                         <div className="pt-6 flex justify-end">
-                            <Button onClick={handleNext}>Next: Printing Details</Button>
+                            <Button onClick={handleNext}>{t('checkout.nextPrinting')}</Button>
                         </div>
                     </div>
                 )}
@@ -283,7 +283,7 @@ function CheckoutWizard() {
                 {step === 2 && (
                     <div className="space-y-6">
                         <div className="flex justify-between items-center border-b pb-4">
-                            <h2 className="text-xl font-bold">What should we print?</h2>
+                            <h2 className="text-xl font-bold">{t('checkout.whatToPrint')}</h2>
                             <label className="flex items-center gap-2 text-sm font-medium cursor-pointer p-2 rounded-md bg-secondary/20 hover:bg-secondary/30 transition-colors">
                                 <input
                                     type="checkbox"
@@ -291,17 +291,17 @@ function CheckoutWizard() {
                                     onChange={(e) => setGiveDetailsByPhone(e.target.checked)}
                                     className="w-4 h-4 text-primary rounded border-gray-300 focus:ring-primary"
                                 />
-                                Give details on phone call/WhatsApp
+                                {t('checkout.giveDetailsByPhone')}
                             </label>
                         </div>
 
                         {giveDetailsByPhone ? (
                             <div className="bg-primary/5 border border-primary/20 text-primary-foreground/90 text-sm p-4 rounded-md">
-                                You have chosen to provide printing details over a phone call or WhatsApp. Our team will contact you shortly after you place the order!
+                                {t('checkout.phoneDetailsMsg')}
                             </div>
                         ) : (
                             <div className="bg-amber-50 border border-amber-200 text-amber-800 text-sm p-4 rounded-md">
-                                Detailed online forms for specific events are currently under construction. Please check the box above to provide your details via phone call or WhatsApp after placing the order.
+                                {t('checkout.formUnderConstruction')}
                             </div>
                         )}
 
@@ -355,7 +355,7 @@ function CheckoutWizard() {
                                                 onChange={e => setCustomization({ ...customization, form_responses: { ...customization.form_responses, [field.label]: e.target.value }})}
                                                 required={field.required}
                                             >
-                                                <option value="">Select an option</option>
+                                                <option value="">{t('checkout.selectOption')}</option>
                                                 {(field.options || []).map((opt: string) => (
                                                     <option key={opt} value={opt}>{opt}</option>
                                                 ))}
@@ -368,13 +368,13 @@ function CheckoutWizard() {
                         {/* If no template available and customer unchecks provide by phone, show placeholder message */}
                         {!giveDetailsByPhone && !activeFormTemplate && (
                            <div className="bg-amber-50 border border-amber-200 text-amber-800 text-sm p-4 rounded-md mt-4">
-                               No specific form available for this category yet. Please provide details securely over WhatsApp/Phone call.
+                               {t('checkout.noFormAvailable')}
                            </div> 
                         )}
 
                         <div className="pt-6 flex justify-between">
-                            <Button variant="outline" onClick={handlePrev}>Back</Button>
-                            <Button onClick={handleNext}>Next: Delivery Address</Button>
+                            <Button variant="outline" onClick={handlePrev}>{t('checkout.back')}</Button>
+                            <Button onClick={handleNext}>{t('checkout.nextDelivery')}</Button>
                         </div>
                     </div>
                 )}
@@ -382,17 +382,17 @@ function CheckoutWizard() {
                 {/* STEP 3: Address */}
                 {step === 3 && (
                     <div className="space-y-4">
-                        <h2 className="text-xl font-bold mb-4 border-b pb-2">Where should we deliver?</h2>
+                        <h2 className="text-xl font-bold mb-4 border-b pb-2">{t('checkout.deliveryTitle')}</h2>
 
                         <div className="space-y-2">
-                            <label className="text-sm font-medium">Full Name</label>
+                            <label className="text-sm font-medium">{t('checkout.fullName')}</label>
                             <input type="text" className="w-full p-2 border rounded-md"
                                 value={address.full_name} onChange={e => setAddress({ ...address, full_name: e.target.value })}
                             />
                         </div>
 
                         <div className="space-y-2">
-                            <label className="text-sm font-medium">Street Address</label>
+                            <label className="text-sm font-medium">{t('checkout.streetAddress')}</label>
                             <input type="text" className="w-full p-2 border rounded-md"
                                 value={address.street} onChange={e => setAddress({ ...address, street: e.target.value })}
                             />
@@ -400,13 +400,13 @@ function CheckoutWizard() {
 
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <label className="text-sm font-medium">City</label>
+                                <label className="text-sm font-medium">{t('checkout.city')}</label>
                                 <input type="text" className="w-full p-2 border rounded-md"
                                     value={address.city} onChange={e => setAddress({ ...address, city: e.target.value })}
                                 />
                             </div>
                             <div className="space-y-2">
-                                <label className="text-sm font-medium">State</label>
+                                <label className="text-sm font-medium">{t('checkout.state')}</label>
                                 <input type="text" className="w-full p-2 border rounded-md"
                                     value={address.state} onChange={e => setAddress({ ...address, state: e.target.value })}
                                 />
@@ -415,13 +415,13 @@ function CheckoutWizard() {
 
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <label className="text-sm font-medium">Zip / Postal Code</label>
+                                <label className="text-sm font-medium">{t('checkout.zipCode')}</label>
                                 <input type="text" className="w-full p-2 border rounded-md"
                                     value={address.zip_code} onChange={e => setAddress({ ...address, zip_code: e.target.value })}
                                 />
                             </div>
                             <div className="space-y-2">
-                                <label className="text-sm font-medium">Phone Number</label>
+                                <label className="text-sm font-medium">{t('checkout.phone')}</label>
                                 <input type="text" className="w-full p-2 border rounded-md"
                                     value={address.phone} onChange={e => setAddress({ ...address, phone: e.target.value })}
                                 />
@@ -429,8 +429,8 @@ function CheckoutWizard() {
                         </div>
 
                         <div className="pt-6 flex justify-between">
-                            <Button variant="outline" onClick={handlePrev}>Back</Button>
-                            <Button onClick={handleNext} disabled={!address.street || !address.city || !address.zip_code || !address.phone}>Review Order</Button>
+                            <Button variant="outline" onClick={handlePrev}>{t('checkout.back')}</Button>
+                            <Button onClick={handleNext} disabled={!address.street || !address.city || !address.zip_code || !address.phone}>{t('checkout.reviewOrder')}</Button>
                         </div>
                     </div>
                 )}
@@ -438,15 +438,15 @@ function CheckoutWizard() {
                 {/* STEP 4: Confirm */}
                 {step === 4 && (
                     <div className="space-y-6">
-                        <h2 className="text-xl font-bold border-b pb-2">Order Summary</h2>
+                        <h2 className="text-xl font-bold border-b pb-2">{t('checkout.orderSummary')}</h2>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-muted/30 p-4 rounded-lg">
                             <div>
-                                <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wider mb-2">Event Details</h3>
-                                <p className="font-medium">Design Slug: {designSlug}</p>
-                                <p>Quantity: {quantity} cards</p>
+                                <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wider mb-2">{t('checkout.eventDetails')}</h3>
+                                <p className="font-medium">{t('checkout.designSlug', { slug: designSlug })}</p>
+                                <p>{t('checkout.quantity', { count: quantity })}</p>
                                 {giveDetailsByPhone ? (
-                                    <p className="text-amber-600 font-medium mt-1">Details to be provided via phone call or WhatsApp.</p>
+                                    <p className="text-amber-600 font-medium mt-1">{t('checkout.detailsByPhone')}</p>
                                 ) : (
                                     <div className="mt-2 space-y-1">
                                         {Object.entries(customization.form_responses || {}).map(([key, val]) => val ? (
@@ -456,11 +456,11 @@ function CheckoutWizard() {
                                 )}
                             </div>
                             <div>
-                                <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wider mb-2">Delivery To</h3>
+                                <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wider mb-2">{t('checkout.deliveryTo')}</h3>
                                 <p className="font-medium">{address.full_name}</p>
                                 <p>{address.street}</p>
                                 <p>{address.city}, {address.state} {address.zip_code}</p>
-                                <p>Phone: {address.phone}</p>
+                                <p>{t('checkout.phoneLabel', { phone: address.phone })}</p>
                             </div>
                         </div>
 
@@ -468,17 +468,17 @@ function CheckoutWizard() {
                             {design ? (
                                 <>
                                     <div className="flex justify-between items-center text-sm">
-                                        <span className="text-muted-foreground">Cards (x{quantity})</span>
+                                        <span className="text-muted-foreground">{t('checkout.cardsCount', { count: quantity })}</span>
                                         <span>₹{design.base_price * quantity}</span>
                                     </div>
                                     {design.print_price > 0 && (
                                         <div className="flex justify-between items-center text-sm">
-                                            <span className="text-muted-foreground">Printing Cost</span>
+                                            <span className="text-muted-foreground">{t('checkout.printingCostLabel')}</span>
                                             <span>₹{(design.print_price / design.print_price_unit) * quantity}</span>
                                         </div>
                                     )}
                                     <div className="border-t border-primary/10 pt-2 flex justify-between items-center mt-2">
-                                        <span className="font-semibold text-lg">Total Amount Due</span>
+                                        <span className="font-semibold text-lg">{t('checkout.totalAmount')}</span>
                                         <span className="font-bold text-2xl text-primary">
                                             ₹{(design.base_price * quantity) + ((design.print_price / design.print_price_unit) * quantity)}
                                         </span>
@@ -486,20 +486,20 @@ function CheckoutWizard() {
                                 </>
                             ) : (
                                 <div className="flex items-center justify-between">
-                                    <span className="font-medium text-lg">Total Amount Due</span>
-                                    <span className="font-bold text-2xl text-primary">Calculating...</span>
+                                    <span className="font-medium text-lg">{t('checkout.totalAmount')}</span>
+                                    <span className="font-bold text-2xl text-primary">{t('checkout.calculating')}</span>
                                 </div>
                             )}
                         </div>
 
                         <div className="pt-6 flex justify-between">
-                            <Button variant="outline" onClick={handlePrev} disabled={isLoading}>Back</Button>
+                            <Button variant="outline" onClick={handlePrev} disabled={isLoading}>{t('checkout.back')}</Button>
                             <Button
                                 onClick={handlePayment}
                                 disabled={isLoading}
                                 className="px-8"
                             >
-                                {isLoading ? "Processing..." : "Pay & Place Order"}
+                                {isLoading ? t('checkout.processing') : t('checkout.payAndPlace')}
                             </Button>
                         </div>
                     </div>
@@ -512,8 +512,9 @@ function CheckoutWizard() {
 }
 
 export default function CheckoutPage() {
+    const { t } = useTranslation();
     return (
-        <Suspense fallback={<div className="py-24 text-center">Loading checkout...</div>}>
+        <Suspense fallback={<div className="py-24 text-center">{t('checkout.loadingCheckout')}</div>}>
             <CheckoutWizard />
         </Suspense>
     );

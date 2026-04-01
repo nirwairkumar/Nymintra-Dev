@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { motion, Variants } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 
 const fadeInUp: Variants = {
   hidden: { opacity: 0, y: 30 },
@@ -19,6 +20,22 @@ const staggerContainer: Variants = {
 
 
 export default function Home() {
+  const { t } = useTranslation();
+
+  const categories = [
+    { id: "wedding", name: t('home.catWedding'), icon: "💍", desc: t('home.catWeddingDesc'), color: "from-red-500/10 to-rose-500/5", glow: "group-hover:shadow-rose-500/20", text: "text-red-700 dark:text-red-400" },
+    { id: "engagement", name: t('home.catEngagement'), icon: "✨", desc: t('home.catEngagementDesc'), color: "from-amber-500/10 to-yellow-500/5", glow: "group-hover:shadow-amber-500/20", text: "text-amber-700 dark:text-amber-400" },
+    { id: "birthday", name: t('home.catBirthday'), icon: "🎂", desc: t('home.catBirthdayDesc'), color: "from-blue-500/10 to-cyan-500/5", glow: "group-hover:shadow-blue-500/20", text: "text-blue-700 dark:text-blue-400" },
+    { id: "puja", name: t('home.catPuja'), icon: "🪔", desc: t('home.catPujaDesc'), color: "from-orange-500/10 to-amber-500/5", glow: "group-hover:shadow-orange-500/20", text: "text-orange-700 dark:text-orange-400" },
+  ];
+
+  const steps = [
+    { title: t('home.step1Title'), desc: t('home.step1Desc') },
+    { title: t('home.step2Title'), desc: t('home.step2Desc') },
+    { title: t('home.step3Title'), desc: t('home.step3Desc') },
+    { title: t('home.step4Title'), desc: t('home.step4Desc') },
+  ];
+
   return (
     <div className="flex flex-col min-h-screen">
       {/* Hero Section */}
@@ -48,12 +65,12 @@ export default function Home() {
             className="flex flex-col items-center space-y-8 text-center"
           >
             <motion.div variants={fadeInUp} className="space-y-4 max-w-3xl">
-              <h1 className="text-5xl font-bold tracking-tighter sm:text-6xl md:text-7xl lg:text-8xl/none text-foreground font-serif drop-shadow-sm">
-                Design Your Dream <br />
-                <span className="text-primary italic font-light drop-shadow-md">Invitation</span>
+              <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl md:text-7xl lg:text-8xl/none text-foreground font-serif drop-shadow-sm">
+                {t('home.heroTitle1')} <br />
+                <span className="text-primary italic font-light drop-shadow-md">{t('home.heroTitle2')}</span>
               </h1>
               <p className="mx-auto max-w-[700px] text-muted-foreground md:text-xl lg:text-2xl font-sans mt-6 font-medium leading-relaxed">
-                Beautiful, culturally rich printed cards for your most auspicious moments. Choose a design, customize in minutes, and we deliver to your doorstep.
+                {t('home.heroSubtitle')}
               </p>
             </motion.div>
 
@@ -62,13 +79,13 @@ export default function Home() {
                 to="/cards"
                 className="inline-flex h-14 items-center justify-center rounded-full bg-primary px-10 text-lg font-medium text-primary-foreground shadow-lg shadow-primary/30 transition-all hover:scale-105 hover:bg-primary/90 hover:shadow-primary/50 focus-visible:outline-none"
               >
-                Start Designing Now
+                {t('home.ctaDesign')}
               </Link>
               <Link
                 to="/how-it-works"
                 className="inline-flex h-14 items-center justify-center rounded-full border-2 border-primary/20 bg-background/50 backdrop-blur-sm px-10 text-lg font-medium shadow-sm transition-all hover:bg-secondary/10 hover:border-secondary/50 focus-visible:outline-none"
               >
-                How It Works
+                {t('home.ctaHow')}
               </Link>
             </motion.div>
           </motion.div>
@@ -85,12 +102,12 @@ export default function Home() {
             variants={staggerContainer}
             className="flex flex-col items-center justify-center space-y-4 text-center mb-16"
           >
-            <motion.h2 variants={fadeInUp} className="text-4xl font-bold tracking-tighter sm:text-5xl text-foreground font-serif">
-              Celebrate Every Occasion
+            <motion.h2 variants={fadeInUp} className="text-3xl font-bold tracking-tighter sm:text-5xl text-foreground font-serif">
+              {t('home.categoriesTitle')}
             </motion.h2>
             <motion.div variants={fadeInUp} className="h-1.5 w-24 bg-gradient-to-r from-primary to-secondary rounded-full" />
             <motion.p variants={fadeInUp} className="max-w-[900px] text-muted-foreground md:text-xl/relaxed mt-4">
-              From grand weddings to intimate pujas, we have traditional and modern themes for your event.
+              {t('home.categoriesSubtitle')}
             </motion.p>
           </motion.div>
 
@@ -101,12 +118,7 @@ export default function Home() {
             variants={staggerContainer}
             className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8"
           >
-            {[
-              { id: "wedding", name: "Wedding", icon: "💍", desc: "Grandeur & Elegance", color: "from-red-500/10 to-rose-500/5", glow: "group-hover:shadow-rose-500/20", text: "text-red-700 dark:text-red-400" },
-              { id: "engagement", name: "Engagement", icon: "✨", desc: "A sparkling start", color: "from-amber-500/10 to-yellow-500/5", glow: "group-hover:shadow-amber-500/20", text: "text-amber-700 dark:text-amber-400" },
-              { id: "birthday", name: "Birthday", icon: "🎂", desc: "Joyous celebrations", color: "from-blue-500/10 to-cyan-500/5", glow: "group-hover:shadow-blue-500/20", text: "text-blue-700 dark:text-blue-400" },
-              { id: "puja", name: "Religious Puja", icon: "🪔", desc: "Auspicious blessings", color: "from-orange-500/10 to-amber-500/5", glow: "group-hover:shadow-orange-500/20", text: "text-orange-700 dark:text-orange-400" },
-            ].map((cat) => (
+            {categories.map((cat) => (
               <motion.div key={cat.id} variants={fadeInUp}>
                 <Link to={cat.id === 'all' ? '/cards' : `/cards?category=${cat.id}`} className={`group relative overflow-hidden rounded-2xl border border-border/50 bg-background/50 backdrop-blur-sm p-8 shadow-sm transition-all duration-500 hover:-translate-y-2 hover:shadow-xl ${cat.glow} flex flex-col items-center text-center gap-4`}>
                   <div className={`absolute inset-0 bg-gradient-to-br ${cat.color} opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
@@ -138,20 +150,15 @@ export default function Home() {
               variants={staggerContainer}
               className="space-y-6"
             >
-              <motion.h2 variants={fadeInUp} className="text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl font-serif text-white">
-                Four Steps to <span className="text-secondary italic">Perfection</span>
+              <motion.h2 variants={fadeInUp} className="text-3xl font-bold tracking-tighter sm:text-5xl md:text-6xl font-serif text-white">
+                {t('home.workflowTitle')} <span className="text-secondary italic">{t('home.workflowTitleHighlight')}</span>
               </motion.h2>
               <motion.p variants={fadeInUp} className="max-w-[600px] text-lg md:text-xl/relaxed text-white/80 font-light">
-                We've made ordering high-quality, beautifully crafted invitations incredibly simple for your entire family.
+                {t('home.workflowSubtitle')}
               </motion.p>
 
               <motion.ul variants={staggerContainer} className="grid gap-8 mt-12">
-                {[
-                  { title: "Browse Gallery", desc: "Select from hundreds of curated Indian designs ranging from Royal Rajasthani to Minimalist Modern." },
-                  { title: "Customize Easily", desc: "Type your details in English or Hindi. See real-time changes directly on the card." },
-                  { title: "Review Live Preview", desc: "Check exactly how the printed card will look, with accurate colors and authentic fonts." },
-                  { title: "Fast Delivery", desc: "Premium quality printing, carefully packaged and delivered rapidly to your home." },
-                ].map((step, i) => (
+                {steps.map((step, i) => (
                   <motion.li variants={fadeInUp} key={i} className="flex items-start gap-6 group">
                     <div className="flex h-14 w-14 items-center justify-center rounded-full bg-secondary text-secondary-foreground font-serif text-xl font-bold shrink-0 shadow-lg group-hover:scale-110 transition-transform duration-300">
                       {i + 1}
@@ -186,10 +193,10 @@ export default function Home() {
                 <div className="w-16 h-16 rounded-full border border-primary/30 flex items-center justify-center mb-4">
                   <span className="text-2xl">🌿</span>
                 </div>
-                <h4 className="font-serif text-primary text-2xl font-bold mb-2">Priya & Rahul</h4>
+                <h4 className="font-serif text-primary text-2xl font-bold mb-2">{t('home.mockupNames')}</h4>
                 <div className="w-1/2 h-px bg-secondary my-4" />
                 <p className="text-xs text-center text-foreground/60 font-serif max-w-[80%]">
-                  Invite you to share their joy as they tie the knot
+                  {t('home.mockupText')}
                 </p>
               </motion.div>
               <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/40 to-transparent pointer-events-none" />

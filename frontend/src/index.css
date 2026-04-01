@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Rozha+One&display=swap');
 @import "tailwindcss";
 @plugin "tailwindcss-animate";
 
@@ -81,9 +82,23 @@
   }
   body {
     @apply bg-background text-foreground font-sans;
-    /* Soft subtle wedding texture background could be added here later */
   }
   h1, h2, h3, h4, h5, h6 {
     @apply font-serif;
+  }
+  
+  /* Hindi Typography Rules */
+  html[lang="hi"] body {
+    font-family: 'Noto Sans Devanagari', 'Inter', sans-serif;
+  }
+  html[lang="hi"] h1, 
+  html[lang="hi"] h2, 
+  html[lang="hi"] h3, 
+  html[lang="hi"] h4, 
+  html[lang="hi"] h5, 
+  html[lang="hi"] h6,
+  html[lang="hi"] .font-serif {
+    font-family: 'Rozha One', 'Playfair Display', serif;
+    font-weight: 400; /* Rozha One is typically single-weight */
   }
 }

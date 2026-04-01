@@ -1,5 +1,6 @@
 import { Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route, Link, Outlet } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Navbar } from '@/components/layout/Navbar';
 
 // Lazy load pages for better performance
@@ -23,6 +24,7 @@ const AdminFormBuilder = lazy(() => import('@/pages/admin/FormBuilder'));
 
 // Layout wrapper for the main site
 const AppLayout = () => {
+  const { t } = useTranslation();
   return (
     <div className="antialiased min-h-screen flex flex-col font-sans">
       <Navbar />
@@ -38,28 +40,28 @@ const AppLayout = () => {
           <div>
             <span className="font-serif text-3xl font-bold text-primary">Nymintra</span>
             <p className="mt-6 text-base text-muted-foreground leading-relaxed">
-              Connecting families with beautiful, culturally rich invitation cards. Designed with love, printed with precision.
+              {t('footer.tagline')}
             </p>
           </div>
           <div>
-            <h4 className="font-semibold text-foreground mb-6 font-serif text-lg tracking-wide uppercase text-secondary">Categories</h4>
+            <h4 className="font-semibold text-foreground mb-6 font-serif text-lg tracking-wide uppercase text-secondary">{t('footer.categories')}</h4>
             <ul className="space-y-4 text-base text-muted-foreground">
-              <li><Link to="/cards" className="hover:text-primary transition-colors">Wedding Cards</Link></li>
-              <li><Link to="/cards" className="hover:text-primary transition-colors">Engagement Cards</Link></li>
-              <li><Link to="/cards" className="hover:text-primary transition-colors">Birthday Invitations</Link></li>
+              <li><Link to="/cards" className="hover:text-primary transition-colors">{t('footer.weddingCards')}</Link></li>
+              <li><Link to="/cards" className="hover:text-primary transition-colors">{t('footer.engagementCards')}</Link></li>
+              <li><Link to="/cards" className="hover:text-primary transition-colors">{t('footer.birthdayInvitations')}</Link></li>
             </ul>
           </div>
           <div>
-            <h4 className="font-semibold text-foreground mb-6 font-serif text-lg tracking-wide uppercase text-secondary">Support</h4>
+            <h4 className="font-semibold text-foreground mb-6 font-serif text-lg tracking-wide uppercase text-secondary">{t('footer.support')}</h4>
             <ul className="space-y-4 text-base text-muted-foreground">
-              <li><Link to="/faq" className="hover:text-primary transition-colors">FAQ</Link></li>
-              <li><Link to="/contact" className="hover:text-primary transition-colors">Contact Us</Link></li>
-              <li><Link to="/shipping" className="hover:text-primary transition-colors">Shipping Policy</Link></li>
+              <li><Link to="/faq" className="hover:text-primary transition-colors">{t('footer.faq')}</Link></li>
+              <li><Link to="/contact" className="hover:text-primary transition-colors">{t('footer.contactUs')}</Link></li>
+              <li><Link to="/shipping" className="hover:text-primary transition-colors">{t('footer.shippingPolicy')}</Link></li>
             </ul>
           </div>
           <div>
-            <h4 className="font-semibold text-foreground mb-6 font-serif text-lg tracking-wide uppercase text-secondary">Connect</h4>
-            <p className="text-base text-muted-foreground mb-6">Follow us on social media for design inspiration.</p>
+            <h4 className="font-semibold text-foreground mb-6 font-serif text-lg tracking-wide uppercase text-secondary">{t('footer.connect')}</h4>
+            <p className="text-base text-muted-foreground mb-6">{t('footer.followUs')}</p>
           </div>
         </div>
       </footer>
@@ -71,6 +73,7 @@ const AppLayout = () => {
 };
 
 function App() {
+  const { t } = useTranslation();
   return (
     <BrowserRouter>
       <Routes>
@@ -101,7 +104,7 @@ function App() {
               <Route path="settings" element={<AdminSettings />} />
           </Route>
 
-          <Route path="*" element={<div className="py-20 text-center font-serif text-3xl">Page Not Found</div>} />
+          <Route path="*" element={<div className="py-20 text-center font-serif text-3xl">{t('common.pageNotFound')}</div>} />
         </Route>
       </Routes>
     </BrowserRouter>

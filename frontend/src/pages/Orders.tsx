@@ -5,11 +5,13 @@ import { authService } from "@/services/auth.service";
 import { api } from "@/lib/api";
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
+import { useTranslation } from 'react-i18next';
 
 export default function CustomerOrdersPage() {
     const [orders, setOrders] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
+    const { t } = useTranslation();
 
     useEffect(() => {
         authService.getCurrentUser()
@@ -45,22 +47,22 @@ export default function CustomerOrdersPage() {
     };
 
     if (loading) {
-        return <div className="py-24 text-center">Loading your orders...</div>;
+        return <div className="py-24 text-center">{t('orders.loading')}</div>;
     }
 
     return (
         <div className="container mx-auto px-4 py-12 max-w-5xl min-h-[60vh]">
-            <h1 className="text-3xl font-serif font-bold text-foreground mb-8">My Orders</h1>
+            <h1 className="text-3xl font-serif font-bold text-foreground mb-8">{t('orders.pageTitle')}</h1>
 
             {orders.length === 0 ? (
                 <div className="text-center py-16 border rounded-xl bg-muted/30">
                     <svg className="mx-auto h-12 w-12 text-muted-foreground mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                     </svg>
-                    <h3 className="text-lg font-medium text-foreground mb-2">No orders yet</h3>
-                    <p className="text-muted-foreground mb-6">You haven't placed any invitation orders.</p>
+                    <h3 className="text-lg font-medium text-foreground mb-2">{t('orders.noOrders')}</h3>
+                    <p className="text-muted-foreground mb-6">{t('orders.noOrdersDesc')}</p>
                     <Link to="/cards">
-                        <Button>Browse Catalog</Button>
+                        <Button>{t('orders.browseCatalog')}</Button>
                     </Link>
                 </div>
             ) : (
@@ -70,29 +72,29 @@ export default function CustomerOrdersPage() {
                             <div className="bg-muted/50 p-4 border-b flex flex-wrap gap-4 items-center justify-between text-sm">
                                 <div className="flex gap-6">
                                     <div>
-                                        <p className="text-muted-foreground font-medium mb-1">Order Placed</p>
+                                        <p className="text-muted-foreground font-medium mb-1">{t('orders.orderPlaced')}</p>
                                         <p>{new Date(order.created_at).toLocaleDateString()}</p>
                                     </div>
                                     <div>
-                                        <p className="text-muted-foreground font-medium mb-1">Total</p>
+                                        <p className="text-muted-foreground font-medium mb-1">{t('orders.total')}</p>
                                         <p className="font-bold">₹{order.total_amount}</p>
                                     </div>
                                     <div className="hidden sm:block">
-                                        <p className="text-muted-foreground font-medium mb-1">Ship To</p>
+                                        <p className="text-muted-foreground font-medium mb-1">{t('orders.shipTo')}</p>
                                         <p>{order.addresses?.full_name}</p>
                                     </div>
                                 </div>
                                 <div className="text-right">
-                                    <p className="text-muted-foreground font-medium mb-1">Order #</p>
+                                    <p className="text-muted-foreground font-medium mb-1">{t('orders.orderNumber')}</p>
                                     <p className="font-mono text-xs">{order.id.split('-')[0]}</p>
                                 </div>
                             </div>
 
                             <div className="p-6 flex flex-col md:flex-row gap-6 items-center">
                                 <div className="flex-1">
-                                    <h3 className="font-bold text-lg mb-1">{order.design_slug} Design ({order.quantity} copies)</h3>
+                                    <h3 className="font-bold text-lg mb-1">{t('orders.copies', { slug: order.design_slug, count: order.quantity })}</h3>
                                     <p className="text-muted-foreground text-sm mb-4">
-                                        Customized for: {order.customizations?.bride_name} & {order.customizations?.groom_name}
+                                        {t('orders.customizedFor', { bride: order.customizations?.bride_name, groom: order.customizations?.groom_name })}
                                     </p>
                                     <div className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold border uppercase tracking-wider ${getStatusColor(order.status)}`}>
                                         <span className="relative flex h-2 w-2 mr-2">
@@ -106,7 +108,7 @@ export default function CustomerOrdersPage() {
                                 </div>
                                 <div>
                                     <Link to={`/orders/${order.id}`}>
-                                        <Button variant="outline">View Details</Button>
+                                        <Button variant="outline">{t('orders.viewDetails')}</Button>
                                     </Link>
                                 </div>
                             </div>
