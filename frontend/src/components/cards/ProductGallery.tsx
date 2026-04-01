@@ -10,6 +10,7 @@ interface ProductGalleryProps {
 
 export function ProductGallery({ images, productName }: ProductGalleryProps) {
     const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
+    const [mainImageIndex, setMainImageIndex] = useState<number>(0);
 
     const openModal = (index: number) => setSelectedImageIndex(index);
     const closeModal = () => setSelectedImageIndex(null);
@@ -24,19 +25,26 @@ export function ProductGallery({ images, productName }: ProductGalleryProps) {
         setSelectedImageIndex((prev) => (prev !== null && prev < images.length - 1 ? prev + 1 : 0));
     };
 
+    const mainUrl = images.length > 0 ? images[mainImageIndex] : '';
+    const isMainVideo = mainUrl ? mainUrl.match(/\.(mp4|webm|mov)$/i) : false;
+
     return (
         <>
             <div className="flex flex-col gap-4">
                 <div
-                    className="aspect-[3/4] bg-muted/30 rounded-2xl overflow-hidden relative border shadow-sm flex items-center justify-center p-4 cursor-pointer"
-                    onClick={() => images.length > 0 && openModal(0)}
+                    className="aspect-[4/5] w-full bg-muted/10 rounded-2xl overflow-hidden relative border shadow-sm flex items-center justify-center p-4 cursor-pointer hover:shadow-md transition-shadow"
+                    onClick={() => images.length > 0 && openModal(mainImageIndex)}
                 >
                     {images.length > 0 ? (
-                        <img
-                            src={images[0]}
-                            alt={productName}
-                            className="w-full h-full object-contain drop-shadow-xl hover:scale-105 transition-transform duration-300"
-                        />
+                        isMainVideo ? (
+                            <video src={mainUrl} className="w-full h-full object-contain" autoPlay loop muted playsInline />
+                        ) : (
+                            <img
+                                src={mainUrl}
+                                alt={productName}
+                                className="w-full h-full object-contain drop-shadow-sm transition-transform duration-300"
+                            />
+                        )
                     ) : (
                         <div className="text-center">
                             <span className="text-muted-foreground block text-lg font-serif">Image Unavailable</span>
@@ -45,15 +53,17 @@ export function ProductGallery({ images, productName }: ProductGalleryProps) {
                 </div>
                 {images.length > 1 && (
                     <div className="grid grid-cols-4 gap-2">
-                        {images.map((url, i) => (
+                        {images.map((url, i) => {
+                            const isVideo = url.match(/\.(mp4|webm|mov)$/i);
+                            return (
                             <div
                                 key={i}
-                                className="aspect-square rounded-md border bg-muted/20 overflow-hidden cursor-pointer hover:opacity-80 transition-opacity"
-                                onClick={() => openModal(i)}
+                                className={`aspect-square rounded-md border bg-muted/20 overflow-hidden cursor-pointer hover:opacity-80 transition-opacity ${mainImageIndex === i ? 'ring-2 ring-primary ring-offset-2' : ''}`}
+                                onClick={() => setMainImageIndex(i)}
                             >
-                                <img src={url} alt={`View ${i + 1}`} className="w-full h-full object-cover" />
+                                {isVideo ? <video src={url} className="w-full h-full object-cover" /> : <img src={url} alt={`View ${i + 1}`} className="w-full h-full object-cover" />}
                             </div>
-                        ))}
+                        )})}
                     </div>
                 )}
             </div>
@@ -78,11 +88,15 @@ export function ProductGallery({ images, productName }: ProductGalleryProps) {
                     )}
 
                     <div className="w-full max-w-5xl h-full max-h-[90vh] flex items-center justify-center relative" onClick={(e) => e.stopPropagation()}>
-                        <img
-                            src={images[selectedImageIndex]}
-                            alt={`${productName} view ${selectedImageIndex + 1}`}
-                            className="max-w-full max-h-full object-contain"
-                        />
+                        {images[selectedImageIndex]?.match(/\.(mp4|webm|mov)$/i) ? (
+                            <video src={images[selectedImageIndex]} controls autoPlay className="max-w-full max-h-full object-contain" />
+                        ) : (
+                            <img
+                                src={images[selectedImageIndex]}
+                                alt={`${productName} view ${selectedImageIndex + 1}`}
+                                className="max-w-full max-h-full object-contain"
+                            />
+                        )}
                     </div>
 
                     {images.length > 1 && (

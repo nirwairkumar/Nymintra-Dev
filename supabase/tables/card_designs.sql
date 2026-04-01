@@ -8,7 +8,8 @@ CREATE TABLE IF NOT EXISTS public.card_designs (
     category VARCHAR(50) NOT NULL DEFAULT 'uncategorized', -- Legacy column for backwards compatibility
     style VARCHAR(50),
     description TEXT,
-    base_price DOUBLE PRECISION NOT NULL, -- Price per card
+    original_price DOUBLE PRECISION, -- MSRP
+    base_price DOUBLE PRECISION NOT NULL, -- Price per card (Selling Price)
     min_quantity INTEGER DEFAULT 50, -- Minimum purchase
     thumbnail_url TEXT NOT NULL,
     image_urls JSONB DEFAULT '[]'::jsonb, -- Multi-image support

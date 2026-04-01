@@ -13,6 +13,7 @@ interface CardDesign {
     categories: string[];
     style: string;
     description: string;
+    original_price?: number;
     base_price: number;
     min_quantity: number;
     thumbnail_url: string;
@@ -98,13 +99,40 @@ export default function DesignDetailPage() {
                         {design.name}
                     </h1>
 
-                    <div className="mb-8">
-                        <div className="text-3xl sm:text-4xl font-bold text-primary">₹{design.base_price}</div>
-                        <div className="text-sm text-muted-foreground mt-1">{t('cardDetail.pricePerCard')}</div>
-                        {design.min_quantity && (
-                            <div className="text-xs text-amber-600 font-medium mt-1">{t('cardDetail.minimumOrder', { count: design.min_quantity })}</div>
-                        )}
-                    </div>
+                    {(() => {
+                        const originalPrice = design.original_price || design.base_price;
+                        const hasDiscount = originalPrice > design.base_price;
+                        const discountPercent = hasDiscount ? Math.round(((originalPrice - design.base_price) / originalPrice) * 100) : 0;
+                        
+                        return (
+                            <div className="mb-8">
+                                {hasDiscount && (
+                                    <div className="text-xs font-bold text-green-700 tracking-wider uppercase mb-2 drop-shadow-sm flex items-center gap-1">
+                                        <span>SUPER DEALS</span>
+                                    </div>
+                                )}
+                                <div className="flex items-center gap-4 mb-2">
+                                    {hasDiscount && (
+                                        <>
+                                            <span className="text-3xl font-extrabold text-green-700 flex items-center">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="mr-1"><line x1="12" y1="5" x2="12" y2="19"></line><polyline points="19 12 12 19 5 12"></polyline></svg>
+                                                {discountPercent}%
+                                            </span>
+                                            <span className="text-3xl text-muted-foreground line-through decoration-muted-foreground/60 decoration-2 font-medium">₹{originalPrice}</span>
+                                        </>
+                                    )}
+                                    <span className="text-5xl sm:text-6xl font-extrabold text-foreground font-sans tracking-tight">₹{design.base_price}</span>
+                                    <span className="text-lg font-normal text-muted-foreground mt-4">/card</span>
+                                </div>
+                                {design.min_quantity && (
+                                    <div className="text-sm text-amber-600 font-semibold mt-3 flex items-center gap-2 bg-amber-50 w-fit px-3 py-1.5 rounded-full">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>
+                                        {t('cardDetail.minimumOrder', { count: design.min_quantity })}
+                                    </div>
+                                )}
+                            </div>
+                        );
+                    })()}
 
                     <div className="prose prose-sm md:prose-base mb-8 text-muted-foreground">
                         <p className="leading-relaxed">
@@ -163,13 +191,20 @@ export default function DesignDetailPage() {
                     </div>
 
                     {/* Call To Action */}
-                    <div className="mt-auto pt-4">
+                    <div className="mt-auto pt-4 flex gap-4">
                         {design.available_stock > 0 ? (
-                            <Link to={`/checkout?design=${design.slug}`} className="block w-full">
-                                <Button size="lg" className="w-full text-lg h-14 shadow-lg hover:shadow-xl transition-all hover:-translate-y-1">
-                                    {t('cardDetail.orderNow')}
-                                </Button>
-                            </Link>
+                            <>
+                                <Link to={`/checkout?design=${design.slug}`} className="flex-1">
+                                    <Button size="lg" variant="outline" className="w-full text-lg h-14 shadow-sm hover:shadow-md transition-all hover:-translate-y-1 bg-muted/20">
+                                        Add to Cart
+                                    </Button>
+                                </Link>
+                                <Link to={`/checkout?design=${design.slug}`} className="flex-1">
+                                    <Button size="lg" className="w-full text-lg h-14 shadow-lg hover:shadow-xl transition-all hover:-translate-y-1">
+                                        {t('cardDetail.orderNow')}
+                                    </Button>
+                                </Link>
+                            </>
                         ) : (
                             <Button size="lg" disabled className="w-full text-lg h-14 opacity-50 cursor-not-allowed">
                                 {t('cardDetail.currentlyOutOfStock')}

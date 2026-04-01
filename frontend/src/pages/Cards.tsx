@@ -147,13 +147,13 @@ export default function CardsCatalog() {
                                     {/* Gold Accent Corner */}
                                     <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-bl from-secondary/40 to-transparent z-10 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                                     
-                                    <div className="aspect-[3/4] bg-muted relative overflow-hidden">
-                                        <Link to={`/cards/${design.slug}`}>
+                                    <div className="aspect-[4/5] bg-muted/20 relative overflow-hidden flex items-center justify-center">
+                                        <Link to={`/cards/${design.slug}`} className="w-full h-full flex items-center justify-center p-2">
                                             {design.thumbnail_url ? (
                                                 <img
                                                     src={design.thumbnail_url}
                                                     alt={design.name}
-                                                    className="w-full h-full object-cover transition-transform duration-700 ease-in-out group-hover:scale-110"
+                                                    className="w-full h-full object-contain transition-transform duration-700 ease-in-out"
                                                 />
                                             ) : (
                                                 <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-muted/50 to-muted">
@@ -165,28 +165,49 @@ export default function CardsCatalog() {
                                     <div className="p-5 flex flex-col flex-1 bg-gradient-to-b from-card to-card/95">
                                         <div className="flex justify-between items-start gap-2 mb-2">
                                             <Link to={`/cards/${design.slug}`} className="truncate flex-1">
-                                                <h3 className="font-semibold text-lg font-serif truncate text-foreground group-hover:text-primary transition-colors" title={design.name}>{design.name}</h3>
+                                                <h3 className="font-medium text-lg truncate text-foreground group-hover:text-primary transition-colors" title={design.name}>{design.name}</h3>
                                             </Link>
-                                            <span className="font-bold text-lg whitespace-nowrap text-primary flex flex-col items-end leading-none">
-                                                <span>₹{design.base_price}</span>
-                                                <span className="text-[10px] text-muted-foreground font-sans font-normal opacity-70">{t('cards.perCard')}</span>
-                                            </span>
                                         </div>
+                                        {/* Dynamic pricing logic */}
+                                        {(() => {
+                                            const originalPrice = design.original_price || design.base_price;
+                                            const hasDiscount = originalPrice > design.base_price;
+                                            const discountPercent = hasDiscount ? Math.round(((originalPrice - design.base_price) / originalPrice) * 100) : 0;
+                                            
+                                            return hasDiscount ? (
+                                                <div className="mb-2">
+                                                    <div className="text-xs font-bold text-green-700 tracking-wide uppercase mb-1 drop-shadow-sm">Super Deals</div>
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="text-xl font-bold text-green-700 flex items-center">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="mr-0.5"><line x1="12" y1="5" x2="12" y2="19"></line><polyline points="19 12 12 19 5 12"></polyline></svg>
+                                                            {discountPercent}%
+                                                        </span>
+                                                        <span className="text-lg text-muted-foreground line-through decoration-muted-foreground/60 decoration-2 font-medium">₹{originalPrice}</span>
+                                                        <span className="text-3xl font-extrabold text-foreground ml-1 font-sans tracking-tight">₹{design.base_price} <span className="text-sm font-normal text-muted-foreground">/card</span></span>
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                <div className="mb-2 flex items-center">
+                                                    <span className="text-3xl font-extrabold text-foreground ml-1 font-sans tracking-tight">₹{design.base_price} <span className="text-sm font-normal text-muted-foreground">/card</span></span>
+                                                </div>
+                                            );
+                                        })()}
                                         <p className="text-muted-foreground text-xs mb-4 uppercase tracking-wider font-medium">
                                             {design.categories?.slice(0, 2).join(" • ") || design.category || "General"}
                                         </p>
-                                        <div className="mt-auto flex items-center justify-between text-xs text-muted-foreground border-t border-border/50 pt-3">
-                                            {design.min_quantity && (
-                                                <span className="flex items-center gap-1.5 font-medium">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>
-                                                    {t('cards.minQty', { count: design.min_quantity })}
-                                                </span>
-                                            )}
-                                            <Link to={`/cards/${design.slug}`}>
-                                                <Button size="sm" className="h-9 px-4 text-[11px] uppercase font-bold tracking-wider bg-primary text-primary-foreground hover:bg-primary/90 hover:scale-105 active:scale-95 transition-all rounded-xl shadow-md hover:shadow-lg">
-                                                    {t('cards.orderNow')}
-                                                </Button>
-                                            </Link>
+                                        <div className="mt-auto flex items-center justify-end text-xs text-muted-foreground border-t border-border/50 pt-3">
+                                            <div className="flex gap-2 w-full md:w-auto mt-3 md:mt-0">
+                                                <Link to={`/cards/${design.slug}`} className="flex-1 md:flex-initial">
+                                                    <Button variant="outline" size="sm" className="w-full h-9 px-4 text-[11px] uppercase font-bold tracking-wider hover:bg-muted transition-all rounded-xl shadow-sm">
+                                                        Add to Cart
+                                                    </Button>
+                                                </Link>
+                                                <Link to={`/cards/${design.slug}`} className="flex-1 md:flex-initial">
+                                                    <Button size="sm" className="w-full h-9 px-4 text-[11px] uppercase font-bold tracking-wider bg-primary text-primary-foreground hover:bg-primary/90 hover:scale-[1.02] active:scale-95 transition-all rounded-xl shadow-md">
+                                                        {t('cards.orderNow')}
+                                                    </Button>
+                                                </Link>
+                                            </div>
                                         </div>
                                     </div>
                                 </motion.div>

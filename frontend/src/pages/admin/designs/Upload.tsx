@@ -16,6 +16,22 @@ const CATEGORIES = [
     { id: "corporate", label: "Corporate" },
 ];
 
+const AVAILABLE_COLORS = [
+    { name: "Red", value: "#FF0000" },
+    { name: "Blue", value: "#0000FF" },
+    { name: "Green", value: "#008000" },
+    { name: "Gold", value: "#FFD700" },
+    { name: "Silver", value: "#C0C0C0" },
+    { name: "Black", value: "#000000" },
+    { name: "White", value: "#FFFFFF", border: true },
+    { name: "Pink", value: "#FFC0CB" },
+    { name: "Purple", value: "#800080" },
+    { name: "Yellow", value: "#FFFF00" },
+    { name: "Orange", value: "#FFA500" },
+    { name: "Rose Gold", value: "#B76E79" },
+    { name: "Maroon", value: "#800000" },
+];
+
 function AdminDesignForm() {
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
@@ -32,6 +48,7 @@ function AdminDesignForm() {
         name: "",
         slug: "",
         categories: [] as string[],
+        original_price: "",
         base_price: "",
         min_quantity: "50",
         description: "",
@@ -70,6 +87,7 @@ function AdminDesignForm() {
                 name: design.name,
                 slug: design.slug,
                 categories: design.categories || [],
+                original_price: design.original_price ? design.original_price.toString() : "",
                 base_price: design.base_price.toString(),
                 min_quantity: design.min_quantity.toString(),
                 description: design.description || "",
@@ -190,6 +208,7 @@ function AdminDesignForm() {
 
             const payload = {
                 ...formData,
+                original_price: formData.original_price ? parseFloat(formData.original_price) : null,
                 base_price: parseFloat(formData.base_price),
                 min_quantity: parseInt(formData.min_quantity),
                 available_stock: parseInt(formData.available_stock),
@@ -395,7 +414,7 @@ function AdminDesignForm() {
                                     <input
                                         type="file"
                                         multiple
-                                        accept="image/*"
+                                        accept="image/*,video/*"
                                         onChange={handleImageUpload}
                                         className="absolute inset-0 opacity-0 cursor-pointer"
                                     />
@@ -413,34 +432,41 @@ function AdminDesignForm() {
 
                                 {previews.length > 0 && (
                                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
-                                        {previews.map((src, i) => (
-                                            <div key={i} className="aspect-square rounded-lg border overflow-hidden relative group shadow-sm transition-all hover:shadow-md">
-                                                <img src={src} alt={`Preview ${i}`} className="w-full h-full object-cover" />
-                                                {/* Cover / Set Cover Badge */}
-                                                {i === 0 ? (
-                                                    <div className="absolute top-2 left-2 bg-primary text-white text-[10px] px-2 py-0.5 rounded shadow z-10">
-                                                        Cover
-                                                    </div>
-                                                ) : (
+                                        {previews.map((src, i) => {
+                                            const isVideo = src.match(/\.(mp4|webm|mov)$/i);
+                                            return (
+                                                <div key={i} className="aspect-square rounded-lg border overflow-hidden relative group shadow-sm transition-all hover:shadow-md bg-muted/20">
+                                                    {isVideo ? (
+                                                        <video src={src} className="w-full h-full object-cover" autoPlay loop muted playsInline />
+                                                    ) : (
+                                                        <img src={src} alt={`Preview ${i}`} className="w-full h-full object-cover" />
+                                                    )}
+                                                    {/* Cover / Set Cover Badge */}
+                                                    {i === 0 ? (
+                                                        <div className="absolute top-2 left-2 bg-primary text-white text-[10px] px-2 py-0.5 rounded shadow z-10">
+                                                            Cover
+                                                        </div>
+                                                    ) : (
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => setCoverImage(i)}
+                                                            className="absolute top-2 left-2 bg-black/60 text-white text-[10px] px-2 py-1 rounded shadow opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black z-10"
+                                                        >
+                                                            Set as Cover
+                                                        </button>
+                                                    )}
+                                                    {/* Remove Button */}
                                                     <button
                                                         type="button"
-                                                        onClick={() => setCoverImage(i)}
-                                                        className="absolute top-2 left-2 bg-black/60 text-white text-[10px] px-2 py-1 rounded shadow opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black z-10"
+                                                        onClick={() => removeImage(i)}
+                                                        className="absolute top-2 right-2 bg-destructive/80 text-white w-6 h-6 flex items-center justify-center rounded-full shadow opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive text-xs z-10"
+                                                        title="Remove Image"
                                                     >
-                                                        Set as Cover
+                                                        ✕
                                                     </button>
-                                                )}
-                                                {/* Remove Button */}
-                                                <button
-                                                    type="button"
-                                                    onClick={() => removeImage(i)}
-                                                    className="absolute top-2 right-2 bg-destructive/80 text-white w-6 h-6 flex items-center justify-center rounded-full shadow opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive text-xs z-10"
-                                                    title="Remove Image"
-                                                >
-                                                    ✕
-                                                </button>
-                                            </div>
-                                        ))}
+                                                </div>
+                                            );
+                                        })}
                                     </div>
                                 )}
                                 
@@ -457,17 +483,29 @@ function AdminDesignForm() {
                                 
                                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                                     <div className="space-y-2">
-                                        <Label htmlFor="price">Base Price/Card (₹)</Label>
+                                        <Label htmlFor="original_price">Original Price/Card (MSRP ₹)</Label>
+                                        <Input
+                                            id="original_price"
+                                            type="number"
+                                            step="0.01"
+                                            placeholder="28.00"
+                                            value={formData.original_price}
+                                            onChange={(e) => setFormData({ ...formData, original_price: e.target.value })}
+                                        />
+                                        <p className="text-[10px] text-muted-foreground mt-1">Leave empty if no discount.</p>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="price">Discounted Price/Card (₹)</Label>
                                         <Input
                                             id="price"
                                             type="number"
                                             step="0.01"
-                                            placeholder="5.50"
+                                            placeholder="6.50"
                                             value={formData.base_price}
                                             onChange={(e) => setFormData({ ...formData, base_price: e.target.value })}
                                             required
                                         />
-                                        <p className="text-[10px] text-muted-foreground mt-1">Cost of the physical unprinted card.</p>
+                                        <p className="text-[10px] text-muted-foreground mt-1">Final robust selling price.</p>
                                     </div>
                                     <div className="space-y-2">
                                         <Label htmlFor="min_quantity">Min Purchase (MOQ)</Label>
@@ -521,15 +559,33 @@ function AdminDesignForm() {
                                             <p className="text-[10px] text-muted-foreground mt-1">Leave at 100 to match the label.</p>
                                         </div>
                                     </div>
-                                    <div className="space-y-2">
-                                        <Label htmlFor="print_colors">Available Print Colors (Ink)</Label>
-                                        <Input
-                                            id="print_colors"
-                                            placeholder="e.g. Red, Gold, Silver Foil, Black"
-                                            value={formData.print_colors}
-                                            onChange={(e) => setFormData({ ...formData, print_colors: e.target.value })}
-                                        />
-                                        <p className="text-[10px] text-muted-foreground mt-1">Comma-separated list of ink options the client can choose while ordering.</p>
+                                    <div className="space-y-3">
+                                        <Label>Available Print Colors (Ink)</Label>
+                                        <div className="flex flex-wrap gap-4 mt-2">
+                                            {AVAILABLE_COLORS.map(color => {
+                                                const selectedColors = formData.print_colors ? formData.print_colors.split(',').map(c => c.trim()) : [];
+                                                const isSelected = selectedColors.includes(color.name);
+                                                return (
+                                                    <div key={color.name} className="flex flex-col items-center gap-1">
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => {
+                                                                if (isSelected) {
+                                                                    setFormData({ ...formData, print_colors: selectedColors.filter(c => c !== color.name).join(", ") });
+                                                                } else {
+                                                                    setFormData({ ...formData, print_colors: [...selectedColors, color.name].join(", ") });
+                                                                }
+                                                            }}
+                                                            title={color.name}
+                                                            className={`w-8 h-8 rounded-full ${color.border ? 'border border-border' : ''} shadow-sm transition-transform ${isSelected ? 'ring-2 ring-primary ring-offset-2 scale-110' : 'hover:scale-105'}`}
+                                                            style={{ backgroundColor: color.value }}
+                                                        />
+                                                        <span className="text-[10px] font-medium text-muted-foreground">{color.name}</span>
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                        <p className="text-[10px] text-muted-foreground mt-1 text-right">Click to toggle the color availability.</p>
                                     </div>
                                 </fieldset>
 
