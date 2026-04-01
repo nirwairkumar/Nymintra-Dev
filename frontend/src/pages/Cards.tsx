@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { motion, Variants } from 'framer-motion';
 import { api } from "@/lib/api";
 import { useTranslation } from 'react-i18next';
+import { useCart } from "@/context/CartContext";
 
 async function getDesigns(category?: string) {
     try {
@@ -36,12 +37,31 @@ const itemVariants: Variants = {
 };
 
 export default function CardsCatalog() {
+    const { t } = useTranslation();
+    const { addToCart } = useCart();
     const [searchParams] = useSearchParams();
     const category = searchParams.get('category') || 'all';
-    const { t } = useTranslation();
     
     const [designs, setDesigns] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
+    const [addedItems, setAddedItems] = useState<Record<string, boolean>>({});
+
+    const handleAddToCart = (design: any) => {
+        addToCart({
+            id: design.id,
+            name: design.name,
+            slug: design.slug,
+            thumbnail_url: design.thumbnail_url || '',
+            base_price: design.base_price,
+            original_price: design.original_price,
+            quantity: design.min_quantity || 1
+        });
+        
+        setAddedItems(prev => ({ ...prev, [design.slug]: true }));
+        setTimeout(() => {
+            setAddedItems(prev => ({ ...prev, [design.slug]: false }));
+        }, 2000);
+    };
 
     useEffect(() => {
         setLoading(true);
@@ -150,11 +170,22 @@ export default function CardsCatalog() {
                                     <div className="aspect-[4/5] bg-muted/20 relative overflow-hidden flex items-center justify-center">
                                         <Link to={`/cards/${design.slug}`} className="w-full h-full flex items-center justify-center p-2">
                                             {design.thumbnail_url ? (
-                                                <img
-                                                    src={design.thumbnail_url}
-                                                    alt={design.name}
-                                                    className="w-full h-full object-contain transition-transform duration-700 ease-in-out"
-                                                />
+                                                design.thumbnail_url.match(/\.(mp4|webm|mov)$/i) ? (
+                                                    <video 
+                                                        src={design.thumbnail_url} 
+                                                        className="w-full h-full object-contain" 
+                                                        autoPlay 
+                                                        loop 
+                                                        muted 
+                                                        playsInline 
+                                                    />
+                                                ) : (
+                                                    <img
+                                                        src={design.thumbnail_url}
+                                                        alt={design.name}
+                                                        className="w-full h-full object-contain transition-transform duration-700 ease-in-out group-hover:scale-110"
+                                                    />
+                                                )
                                             ) : (
                                                 <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-muted/50 to-muted">
                                                     <span className="text-muted-foreground/30 text-6xl">🎴</span>
@@ -178,17 +209,17 @@ export default function CardsCatalog() {
                                                 <div className="mb-2">
                                                     <div className="text-xs font-bold text-green-700 tracking-wide uppercase mb-1 drop-shadow-sm">Super Deals</div>
                                                     <div className="flex items-center gap-2">
-                                                        <span className="text-xl font-bold text-green-700 flex items-center">
-                                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="mr-0.5"><line x1="12" y1="5" x2="12" y2="19"></line><polyline points="19 12 12 19 5 12"></polyline></svg>
+                                                        <span className="text-lg font-bold text-green-700 flex items-center">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="mr-0.5"><line x1="12" y1="5" x2="12" y2="19"></line><polyline points="19 12 12 19 5 12"></polyline></svg>
                                                             {discountPercent}%
                                                         </span>
-                                                        <span className="text-lg text-muted-foreground line-through decoration-muted-foreground/60 decoration-2 font-medium">₹{originalPrice}</span>
-                                                        <span className="text-3xl font-extrabold text-foreground ml-1 font-sans tracking-tight">₹{design.base_price} <span className="text-sm font-normal text-muted-foreground">/card</span></span>
+                                                        <span className="text-sm text-muted-foreground line-through decoration-muted-foreground/60 decoration-2 font-medium">₹{originalPrice}</span>
+                                                        <span className="text-2xl font-extrabold text-foreground ml-1 font-sans tracking-tight">₹{design.base_price} <span className="text-sm font-normal text-muted-foreground">/card</span></span>
                                                     </div>
                                                 </div>
                                             ) : (
                                                 <div className="mb-2 flex items-center">
-                                                    <span className="text-3xl font-extrabold text-foreground ml-1 font-sans tracking-tight">₹{design.base_price} <span className="text-sm font-normal text-muted-foreground">/card</span></span>
+                                                    <span className="text-2xl font-extrabold text-foreground ml-1 font-sans tracking-tight">₹{design.base_price} <span className="text-sm font-normal text-muted-foreground">/card</span></span>
                                                 </div>
                                             );
                                         })()}
@@ -197,11 +228,14 @@ export default function CardsCatalog() {
                                         </p>
                                         <div className="mt-auto flex items-center justify-end text-xs text-muted-foreground border-t border-border/50 pt-3">
                                             <div className="flex gap-2 w-full md:w-auto mt-3 md:mt-0">
-                                                <Link to={`/cards/${design.slug}`} className="flex-1 md:flex-initial">
-                                                    <Button variant="outline" size="sm" className="w-full h-9 px-4 text-[11px] uppercase font-bold tracking-wider hover:bg-muted transition-all rounded-xl shadow-sm">
-                                                        Add to Cart
-                                                    </Button>
-                                                </Link>
+                                                <Button 
+                                                    onClick={() => handleAddToCart(design)}
+                                                    variant="outline" 
+                                                    size="sm" 
+                                                    className={`flex-1 md:flex-initial h-9 px-4 text-[11px] uppercase font-bold tracking-wider transition-all rounded-xl shadow-sm ${addedItems[design.slug] ? 'bg-green-600 text-white hover:bg-green-700 border-green-600' : 'hover:bg-muted'}`}
+                                                >
+                                                    {addedItems[design.slug] ? 'Added!' : 'Add to Cart'}
+                                                </Button>
                                                 <Link to={`/cards/${design.slug}`} className="flex-1 md:flex-initial">
                                                     <Button size="sm" className="w-full h-9 px-4 text-[11px] uppercase font-bold tracking-wider bg-primary text-primary-foreground hover:bg-primary/90 hover:scale-[1.02] active:scale-95 transition-all rounded-xl shadow-md">
                                                         {t('cards.orderNow')}

@@ -4,6 +4,7 @@ import { ProductGallery } from "@/components/cards/ProductGallery";
 import { useState, useEffect } from 'react';
 import { api } from "@/lib/api";
 import { useTranslation } from 'react-i18next';
+import { useCart } from '@/context/CartContext';
 
 // Define the interface for the design
 interface CardDesign {
@@ -46,7 +47,24 @@ export default function DesignDetailPage() {
     const { slug } = useParams();
     const [design, setDesign] = useState<CardDesign | null>(null);
     const [loading, setLoading] = useState(true);
+    const [added, setAdded] = useState(false);
     const { t } = useTranslation();
+    const { addToCart } = useCart();
+
+    const handleAddToCart = () => {
+        if (!design) return;
+        addToCart({
+            id: design.id,
+            name: design.name,
+            slug: design.slug,
+            thumbnail_url: design.image_urls?.[0] || design.thumbnail_url || '',
+            base_price: design.base_price,
+            original_price: design.original_price,
+            quantity: design.min_quantity || 1
+        });
+        setAdded(true);
+        setTimeout(() => setAdded(false), 2000);
+    };
 
     useEffect(() => {
         if (slug) {
@@ -65,9 +83,13 @@ export default function DesignDetailPage() {
         return <div className="py-24 text-center">{t('cardDetail.notFound')}</div>;
     }
 
-    const images = design.image_urls && design.image_urls.length > 0
-        ? design.image_urls
-        : [design.thumbnail_url].filter(Boolean);
+    const galleryImages = [
+        design.thumbnail_url,
+        ...(design.image_urls || [])
+    ].filter((url): url is string => !!url && typeof url === 'string');
+    
+    // Remove duplicates while preserving order
+    const images = Array.from(new Set(galleryImages));
 
     return (
         <div className="container mx-auto px-4 py-12 max-w-7xl">
@@ -114,15 +136,15 @@ export default function DesignDetailPage() {
                                 <div className="flex items-center gap-4 mb-2">
                                     {hasDiscount && (
                                         <>
-                                            <span className="text-3xl font-extrabold text-green-700 flex items-center">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="mr-1"><line x1="12" y1="5" x2="12" y2="19"></line><polyline points="19 12 12 19 5 12"></polyline></svg>
+                                            <span className="text-2xl font-extrabold text-green-700 flex items-center">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="mr-1"><line x1="12" y1="5" x2="12" y2="19"></line><polyline points="19 12 12 19 5 12"></polyline></svg>
                                                 {discountPercent}%
                                             </span>
-                                            <span className="text-3xl text-muted-foreground line-through decoration-muted-foreground/60 decoration-2 font-medium">₹{originalPrice}</span>
+                                            <span className="text-2xl text-muted-foreground line-through decoration-muted-foreground/60 decoration-2 font-medium">₹{originalPrice}</span>
                                         </>
                                     )}
-                                    <span className="text-5xl sm:text-6xl font-extrabold text-foreground font-sans tracking-tight">₹{design.base_price}</span>
-                                    <span className="text-lg font-normal text-muted-foreground mt-4">/card</span>
+                                    <span className="text-4xl sm:text-5xl font-extrabold text-foreground font-sans tracking-tight">₹{design.base_price}</span>
+                                    <span className="text-base font-normal text-muted-foreground mt-4">/card</span>
                                 </div>
                                 {design.min_quantity && (
                                     <div className="text-sm text-amber-600 font-semibold mt-3 flex items-center gap-2 bg-amber-50 w-fit px-3 py-1.5 rounded-full">
@@ -194,11 +216,14 @@ export default function DesignDetailPage() {
                     <div className="mt-auto pt-4 flex gap-4">
                         {design.available_stock > 0 ? (
                             <>
-                                <Link to={`/checkout?design=${design.slug}`} className="flex-1">
-                                    <Button size="lg" variant="outline" className="w-full text-lg h-14 shadow-sm hover:shadow-md transition-all hover:-translate-y-1 bg-muted/20">
-                                        Add to Cart
-                                    </Button>
-                                </Link>
+                                <Button 
+                                    onClick={handleAddToCart}
+                                    size="lg" 
+                                    variant="outline" 
+                                    className={`flex-1 text-lg h-14 shadow-sm hover:shadow-md transition-all hover:-translate-y-1 ${added ? 'bg-green-600 text-white border-green-600 hover:bg-green-700' : 'bg-muted/20'}`}
+                                >
+                                    {added ? 'Added to Cart!' : 'Add to Cart'}
+                                </Button>
                                 <Link to={`/checkout?design=${design.slug}`} className="flex-1">
                                     <Button size="lg" className="w-full text-lg h-14 shadow-lg hover:shadow-xl transition-all hover:-translate-y-1">
                                         {t('cardDetail.orderNow')}

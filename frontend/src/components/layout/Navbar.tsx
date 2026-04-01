@@ -14,8 +14,10 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { LanguageSwitcher } from "@/components/layout/LanguageSwitcher";
+import { useCart } from '@/context/CartContext';
 
 export function Navbar() {
+    const { cartCount } = useCart();
     const navigate = useNavigate();
     const location = useLocation();
     const pathname = location.pathname;
@@ -91,6 +93,11 @@ export function Navbar() {
                     {!pathname.startsWith('/admin') && (
                         <Link to="/cart" className="hidden md:flex relative p-2 rounded-full text-foreground/80 hover:text-primary hover:bg-primary/5 transition-colors">
                             <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="8" cy="21" r="1" /><circle cx="19" cy="21" r="1" /><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12" /></svg>
+                            {cartCount > 0 && (
+                                <span className="absolute top-0 right-0 bg-primary text-primary-foreground text-[10px] font-bold h-4 w-4 flex items-center justify-center rounded-full shadow-sm animate-in zoom-in">
+                                    {cartCount}
+                                </span>
+                            )}
                         </Link>
                     )}
 
@@ -185,7 +192,14 @@ export function Navbar() {
                             <div className="h-px bg-border/50 my-2" />
                             
                             <Link to="/cart" onClick={() => setIsMobileMenuOpen(false)} className={`flex items-center text-lg font-medium transition-colors ${pathname === '/cart' ? 'text-primary font-bold' : 'text-foreground/80'}`}>
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" className="mr-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="8" cy="21" r="1" /><circle cx="19" cy="21" r="1" /><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12" /></svg>
+                                <div className="relative mr-3">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="8" cy="21" r="1" /><circle cx="19" cy="21" r="1" /><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12" /></svg>
+                                    {cartCount > 0 && (
+                                        <span className="absolute -top-1.5 -right-1.5 bg-primary text-primary-foreground text-[8px] font-bold h-3.5 w-3.5 flex items-center justify-center rounded-full shadow-sm">
+                                            {cartCount}
+                                        </span>
+                                    )}
+                                </div>
                                 Cart
                             </Link>
                             

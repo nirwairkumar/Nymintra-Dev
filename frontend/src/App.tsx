@@ -3,6 +3,8 @@ import { BrowserRouter, Routes, Route, Link, Outlet } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Navbar } from '@/components/layout/Navbar';
 
+import { CartProvider } from '@/context/CartContext';
+
 // Lazy load pages for better performance
 const Home = lazy(() => import('@/pages/Home'));
 const Login = lazy(() => import('@/pages/auth/Login'));
@@ -11,6 +13,7 @@ const Verify = lazy(() => import('@/pages/auth/Verify'));
 const Cards = lazy(() => import('@/pages/Cards'));
 const CardDetail = lazy(() => import('@/pages/cards/slug'));
 const Checkout = lazy(() => import('@/pages/Checkout'));
+const Cart = lazy(() => import('@/pages/Cart'));
 const Orders = lazy(() => import('@/pages/Orders'));
 const Admin = lazy(() => import('@/pages/Admin'));
 const AdminDesigns = lazy(() => import('@/pages/admin/Designs'));
@@ -76,38 +79,41 @@ function App() {
   const { t } = useTranslation();
   return (
     <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<AppLayout />}>
-          <Route index element={<Home />} />
-          <Route path="login" element={<Login />} />
-          <Route path="register" element={<Register />} />
-          <Route path="verify" element={<Verify />} />
+      <CartProvider>
+        <Routes>
+          <Route path="/" element={<AppLayout />}>
+            <Route index element={<Home />} />
+            <Route path="login" element={<Login />} />
+            <Route path="register" element={<Register />} />
+            <Route path="verify" element={<Verify />} />
 
-          <Route path="cards">
-            <Route index element={<Cards />} />
-            <Route path=":slug" element={<CardDetail />} />
-          </Route>
+            <Route path="cards">
+              <Route index element={<Cards />} />
+              <Route path=":slug" element={<CardDetail />} />
+            </Route>
 
-          <Route path="checkout" element={<Checkout />} />
-          <Route path="orders" element={<Orders />} />
-          <Route path="orders/:id" element={<Orders />} />
+            <Route path="cart" element={<Cart />} />
+            <Route path="checkout" element={<Checkout />} />
+            <Route path="orders" element={<Orders />} />
+            <Route path="orders/:id" element={<Orders />} />
 
-          {/* Admin Routes with Unified Layout */}
-          <Route path="admin" element={<AdminLayout />}>
-              <Route index element={<Admin />} />
-              <Route path="designs" element={<AdminDesigns />} />
-              <Route path="designs/upload" element={<AdminUploadCard />} />
-              <Route path="orders" element={<AdminOrders />} />
-              <Route path="orders/:id" element={<AdminOrderDetail />} />
-              <Route path="customers" element={<AdminCustomers />} />
-              <Route path="forms" element={<AdminFormBuilder />} />
-              <Route path="settings" element={<AdminSettings />} />
-          </Route>
+            {/* Admin Routes with Unified Layout */}
+            <Route path="admin" element={<AdminLayout />}>
+                <Route index element={<Admin />} />
+                <Route path="designs" element={<AdminDesigns />} />
+                <Route path="designs/upload" element={<AdminUploadCard />} />
+                <Route path="orders" element={<AdminOrders />} />
+                <Route path="orders/:id" element={<AdminOrderDetail />} />
+                <Route path="customers" element={<AdminCustomers />} />
+                <Route path="forms" element={<AdminFormBuilder />} />
+                <Route path="settings" element={<AdminSettings />} />
+            </Route>
 
           <Route path="*" element={<div className="py-20 text-center font-serif text-3xl">{t('common.pageNotFound')}</div>} />
         </Route>
       </Routes>
-    </BrowserRouter>
+    </CartProvider>
+  </BrowserRouter>
   );
 }
 
