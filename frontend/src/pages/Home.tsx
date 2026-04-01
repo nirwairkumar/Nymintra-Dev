@@ -1,12 +1,13 @@
 import { Link } from 'react-router-dom';
-import { motion, Variants } from 'framer-motion';
+import { motion, Variants, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
+import { useEffect, useState } from 'react';
+import { api } from '@/lib/api';
 
 const fadeInUp: Variants = {
   hidden: { opacity: 0, y: 30 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.8, type: "tween", ease: "easeOut" } }
 };
-
 
 const staggerContainer: Variants = {
   hidden: { opacity: 0 },
@@ -18,9 +19,33 @@ const staggerContainer: Variants = {
   }
 };
 
-
 export default function Home() {
   const { t } = useTranslation();
+  const [galleryImages, setGalleryImages] = useState<string[]>([]);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  useEffect(() => {
+    const fetchGallery = async () => {
+        try {
+            const res = await api.get('/settings/home_gallery_images');
+            if (res.data?.value?.images?.length) {
+                setGalleryImages(res.data.value.images);
+            }
+        } catch (e) {
+            // Silently ignore if setting doesn't exist yet
+        }
+    };
+    fetchGallery();
+  }, []);
+
+  useEffect(() => {
+    if (galleryImages.length > 1) {
+        const interval = setInterval(() => {
+            setCurrentImageIndex(prev => (prev + 1) % galleryImages.length);
+        }, 3500);
+        return () => clearInterval(interval);
+    }
+  }, [galleryImages]);
 
   const categories = [
     { id: "wedding", name: t('home.catWedding'), icon: "💍", desc: t('home.catWeddingDesc'), color: "from-red-500/10 to-rose-500/5", glow: "group-hover:shadow-rose-500/20", text: "text-red-700 dark:text-red-400" },
@@ -188,16 +213,33 @@ export default function Home() {
               <motion.div
                 animate={{ y: [0, -10, 0] }}
                 transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                className="w-3/4 aspect-[3/4] bg-white rounded-lg shadow-xl translate-y-4 flex flex-col items-center justify-center p-6 border-4 border-amber-100/20"
+                className="w-3/4 aspect-[3/4] bg-white rounded-lg shadow-xl translate-y-4 flex flex-col items-center justify-center border-4 border-amber-100/20 overflow-hidden relative"
               >
-                <div className="w-16 h-16 rounded-full border border-primary/30 flex items-center justify-center mb-4">
-                  <span className="text-2xl">🌿</span>
-                </div>
-                <h4 className="font-serif text-primary text-2xl font-bold mb-2">{t('home.mockupNames')}</h4>
-                <div className="w-1/2 h-px bg-secondary my-4" />
-                <p className="text-xs text-center text-foreground/60 font-serif max-w-[80%]">
-                  {t('home.mockupText')}
-                </p>
+                  {galleryImages.length > 0 ? (
+                      <AnimatePresence mode="wait">
+                          <motion.img 
+                              key={currentImageIndex}
+                              src={galleryImages[currentImageIndex]}
+                              initial={{ opacity: 0, scale: 1.02 }}
+                              animate={{ opacity: 1, scale: 1 }}
+                              exit={{ opacity: 0 }}
+                              transition={{ duration: 1, ease: "easeInOut" }}
+                              alt="Showcase Gallery"
+                              className="w-full h-full object-cover absolute inset-0"
+                          />
+                      </AnimatePresence>
+                  ) : (
+                      <div className="w-full h-full flex flex-col items-center justify-center p-6 bg-white">
+                        <div className="w-16 h-16 rounded-full border border-primary/30 flex items-center justify-center mb-4">
+                          <span className="text-2xl">🌿</span>
+                        </div>
+                        <h4 className="font-serif text-primary text-2xl font-bold mb-2">{t('home.mockupNames')}</h4>
+                        <div className="w-1/2 h-px bg-secondary my-4" />
+                        <p className="text-xs text-center text-foreground/60 font-serif max-w-[80%]">
+                          {t('home.mockupText')}
+                        </p>
+                      </div>
+                  )}
               </motion.div>
               <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/40 to-transparent pointer-events-none" />
             </motion.div>
