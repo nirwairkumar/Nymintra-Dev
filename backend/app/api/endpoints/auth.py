@@ -171,12 +171,28 @@ def forgot_password(request: ForgotPasswordRequest, req: Request, supabase: Clie
 @router.post("/reset-password")
 def reset_password(request: ResetPasswordConfirm, token: str = Depends(oauth2_scheme), supabase: Client = Depends(get_supabase)):
     try:
-        # We MUST set the session for the client so it knows which user to update.
-        # The token is the recovery token sent from the frontend.
-        supabase.auth.set_session(access_token=token, refresh_token="")
-        
-        supabase.auth.update_user({"password": request.new_password})
+        # 1. Verify the token is valid and get the user
+        auth_res = supabase.auth.get_user(token)
+        if not auth_res.user:
+             raise HTTPException(status_code=401, detail="Invalid or expired reset token")
+             
+        # 2. Update user password using the admin client
+        # This bypasses the need for a session on the client itself, 
+        # which is more reliable for backend-side updates.
+        supabase.auth.admin.update_user_by_id(
+            auth_res.user.id, 
+            attributes={"password": request.new_password}
+        )
         return {"message": "Password has been reset successfully."}
     except Exception as e:
         print(f"Reset password error: {e}")
-        raise HTTPException(status_code=400, detail=f"Failed to reset password: {str(e)}")
+        error_msg = str(e)
+        if "Auth session missing" in error_msg:
+            # Fallback if admin method is not available or failed due to session
+            try:
+                supabase.auth.set_session(access_token=token, refresh_token="")
+                supabase.auth.update_user({"password": request.new_password})
+                return {"message": "Password has been reset successfully."}
+            except Exception as e2:
+                raise HTTPException(status_code=400, detail=f"Failed to reset password: {str(e2)}")
+        raise HTTPException(status_code=400, detail=f"Failed to reset password: {error_msg}")
