@@ -64,7 +64,7 @@ export default function Home() {
   return (
     <div className="flex flex-col min-h-screen">
       {/* Hero Section */}
-      <section className="relative w-full py-20 lg:py-32 xl:py-40 flex flex-col items-center justify-center text-center overflow-hidden">
+      <section className="relative w-full pt-10 pb-20 lg:pt-16 lg:pb-32 xl:pt-20 xl:pb-40 flex flex-col items-center justify-center text-center overflow-hidden">
         {/* Background Decorative Pattern - Modern Indian/Mandala gradient hint */}
         <div className="absolute inset-0 z-0 opacity-20 pointer-events-none">
           <motion.div

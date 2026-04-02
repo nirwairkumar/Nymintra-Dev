@@ -40,7 +40,18 @@
     "step4Title": "Fast Delivery",
     "step4Desc": "Premium quality printing, carefully packaged and delivered rapidly to your home.",
     "mockupNames": "Priya & Rahul",
-    "mockupText": "Invite you to share their joy as they tie the knot"
+    "mockupText": "Invite you to share their joy as they tie the knot",
+    "aboutTitle": "Our Story & Craft",
+    "aboutSubtitle": "Nymintra was born from a passion for preserving the rich heritage of Indian invitations while embracing the ease of modern design.",
+    "aboutStoryTitle": "Preserving Traditions",
+    "aboutStoryText": "In every wedding card and puja invite, there's a story of family, culture, and love. We curate the finest designs from across India, ensuring that your first step towards any celebration is as beautiful as the event itself.",
+    "aboutValuesTitle": "Why Choose Nymintra?",
+    "value1Title": "Premium Quality",
+    "value1Desc": "We use only the finest paper and high-precision printing for a regal feel.",
+    "value2Title": "Authentic Designs",
+    "value2Desc": "Our collection spans from royal classical to sleek modern Indian aesthetics.",
+    "value3Title": "Dedicated Support",
+    "value3Desc": "Our team is here to help you perfect every detail of your invitation."
   },
   "cards": {
     "pageTitle": "Premium Invitations",
@@ -156,6 +167,38 @@
     "shippingPolicy": "Shipping Policy",
     "connect": "Connect",
     "followUs": "Follow us on social media for design inspiration."
+  },
+  "about": {
+    "title": "Our Story & Craft",
+    "subtitle": "Nymintra was born from a passion for preserving the rich heritage of Indian invitations while embracing the ease of modern design.",
+    "heritageTitle": "A Legacy of Elegance",
+    "heritagePara1": "Founded with the vision to bridge the gap between traditional craftsmanship and modern convenience, Nymintra brings the world of premium Indian invitations to your fingertips.",
+    "heritagePara2": "We believe that an invitation is more than just paper; it's the first chapter of your celebration, a herald of joy, and a keepsake of love.",
+    "visionTitle": "Our Vision",
+    "visionText": "To become the global destination for culturally rich, high-quality invitations that honor tradition and celebrate innovation.",
+    "valuesTitle": "The Nymintra Promise",
+    "valueQuality": "Regal Quality",
+    "valueQualityDesc": "Hand-selected papers and gold-standard printing for a truly royal feel.",
+    "valueDesign": "Curated Design",
+    "valueDesignDesc": "From classical Rajasthani to minimalist modern, our collection is unparalleled.",
+    "valueService": "Heartfelt Service",
+    "valueServiceDesc": "Personalized support to ensure your invitations are as perfect as your special day."
+  },
+  "contact": {
+    "title": "Get in Touch",
+    "subtitle": "We'd love to hear from you. Our team is always here to assist with your invitation needs.",
+    "sendMessage": "Send us a message",
+    "fullName": "Full Name",
+    "emailOrPhone": "Email or Phone",
+    "eventType": "Event Type",
+    "message": "Your Message",
+    "submit": "Submit Inquiry",
+    "submitting": "Sending...",
+    "success": "Thank you! We'll get back to you shortly.",
+    "phone": "Phone & WhatsApp",
+    "email": "Email Address",
+    "address": "Office Address",
+    "addressText": "Bhagwanpur Hat, Siwan, Bihar, 841408"
   },
   "common": {
     "pageNotFound": "Page Not Found",
