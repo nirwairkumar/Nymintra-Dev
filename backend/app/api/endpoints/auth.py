@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from supabase import Client
 from app.db.database import get_supabase
@@ -142,12 +142,25 @@ def admin_login(form_data: OAuth2PasswordRequestForm = Depends(), supabase: Clie
         raise HTTPException(status_code=401, detail=str(e))
 
 @router.post("/forgot-password")
-def forgot_password(request: ForgotPasswordRequest, supabase: Client = Depends(get_supabase)):
+def forgot_password(request: ForgotPasswordRequest, req: Request, supabase: Client = Depends(get_supabase)):
     try:
+        # Try to determine the frontend URL to redirect back to /reset-password
+        # We check the origin or referer headers to make it work for both dev and prod
+        origin = req.headers.get("origin") or req.headers.get("referer")
+        
+        # Default fallback
+        redirect_to = "https://nymintra.com/reset-password"
+        
+        if origin:
+            # Clean the origin URL (remove path, just keep scheme + domain)
+            from urllib.parse import urlparse
+            parsed = urlparse(origin)
+            origin_base = f"{parsed.scheme}://{parsed.netloc}"
+            redirect_to = f"{origin_base}/reset-password"
+
         # Supabase will send an email with a reset link
-        # The link will redirect to the site URL configured in Supabase dashboard
-        # with an access_token in the URL fragment.
-        supabase.auth.reset_password_for_email(request.email)
+        # Specifying redirect_to ensures the link takes the user to our reset page
+        supabase.auth.reset_password_for_email(request.email, options={"redirect_to": redirect_to})
         return {"message": "If an account with that email exists, a password reset link has been sent."}
     except Exception as e:
         # We don't want to leak whether the email exists or not for security, 

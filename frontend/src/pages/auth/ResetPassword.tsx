@@ -40,6 +40,12 @@ export default function ResetPasswordPage() {
         const search = window.location.search;
         const params = new URLSearchParams(hash ? hash.replace('#', '') : search);
         
+        const errorDescription = params.get('error_description') || params.get('error');
+        if (errorDescription) {
+            setError(decodeURIComponent(errorDescription).replace(/\+/g, ' '));
+            return;
+        }
+
         const accessToken = params.get('access_token');
         if (accessToken) {
             // Set the cookie so subsequent API calls use this token

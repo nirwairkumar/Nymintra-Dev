@@ -1,5 +1,5 @@
-import { Suspense, lazy } from 'react';
-import { BrowserRouter, Routes, Route, Link, Outlet } from 'react-router-dom';
+import { Suspense, lazy, useEffect } from 'react';
+import { BrowserRouter, Routes, Route, Link, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Navbar } from '@/components/layout/Navbar';
 
@@ -30,6 +30,23 @@ const AdminFormBuilder = lazy(() => import('@/pages/admin/FormBuilder'));
 // Layout wrapper for the main site
 const AppLayout = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    // Global handler for Supabase recovery/reset links
+    // If we land on any page with a recovery token, redirect to /reset-password
+    const hash = window.location.hash;
+    const search = window.location.search;
+    const params = new URLSearchParams(hash ? hash.replace('#', '') : search);
+    
+    if (params.get('type') === 'recovery' || params.get('access_token')) {
+        if (location.pathname !== '/reset-password') {
+            navigate(`/reset-password${hash}${search}`);
+        }
+    }
+  }, [location, navigate]);
+
   return (
     <div className="antialiased min-h-screen flex flex-col font-sans">
       <Navbar />
