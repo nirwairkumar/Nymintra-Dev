@@ -10,6 +10,8 @@ const Home = lazy(() => import('@/pages/Home'));
 const Login = lazy(() => import('@/pages/auth/Login'));
 const Register = lazy(() => import('@/pages/auth/Register'));
 const Verify = lazy(() => import('@/pages/auth/Verify'));
+const ForgotPassword = lazy(() => import('@/pages/auth/ForgotPassword'));
+const ResetPassword = lazy(() => import('@/pages/auth/ResetPassword'));
 const Cards = lazy(() => import('@/pages/Cards'));
 const CardDetail = lazy(() => import('@/pages/cards/slug'));
 const Checkout = lazy(() => import('@/pages/Checkout'));
@@ -86,6 +88,8 @@ function App() {
             <Route path="login" element={<Login />} />
             <Route path="register" element={<Register />} />
             <Route path="verify" element={<Verify />} />
+            <Route path="forgot-password" element={<ForgotPassword />} />
+            <Route path="reset-password" element={<ResetPassword />} />
 
             <Route path="cards">
               <Route index element={<Cards />} />

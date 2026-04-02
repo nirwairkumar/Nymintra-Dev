@@ -112,7 +112,7 @@ export default function LoginPage() {
                                 <FormItem>
                                     <FormLabel className="flex justify-between items-center text-foreground">
                                         <span>Password</span>
-                                        <Link to="#" className="text-xs text-primary hover:underline">Forgot password?</Link>
+                                        <Link to="/forgot-password" className="text-xs text-primary hover:underline">Forgot password?</Link>
                                     </FormLabel>
                                     <FormControl>
                                         <Input type="password" placeholder="Enter password" {...field} className="h-12 bg-background" suppressHydrationWarning />

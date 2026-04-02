@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from supabase import Client
 from app.db.database import get_supabase
-from app.schemas.user import Token, UserCreate
+from app.schemas.user import Token, UserCreate, ForgotPasswordRequest, ResetPasswordConfirm
 # Removed jose and custom security imports as we'll use Supabase Auth directly
 
 router = APIRouter()
@@ -140,3 +140,30 @@ def admin_login(form_data: OAuth2PasswordRequestForm = Depends(), supabase: Clie
         if "timeout" in err_str or "readtimeout" in err_str:
             raise HTTPException(status_code=503, detail="Admin service timed out, please try again")
         raise HTTPException(status_code=401, detail=str(e))
+
+@router.post("/forgot-password")
+def forgot_password(request: ForgotPasswordRequest, supabase: Client = Depends(get_supabase)):
+    try:
+        # Supabase will send an email with a reset link
+        # The link will redirect to the site URL configured in Supabase dashboard
+        # with an access_token in the URL fragment.
+        supabase.auth.reset_password_for_email(request.email)
+        return {"message": "If an account with that email exists, a password reset link has been sent."}
+    except Exception as e:
+        # We don't want to leak whether the email exists or not for security, 
+        # but for debugging we might want to log it.
+        print(f"Forgot password error: {e}")
+        return {"message": "If an account with that email exists, a password reset link has been sent."}
+
+@router.post("/reset-password")
+def reset_password(request: ResetPasswordConfirm, token: str = Depends(oauth2_scheme), supabase: Client = Depends(get_supabase)):
+    try:
+        # We MUST set the session for the client so it knows which user to update.
+        # The token is the recovery token sent from the frontend.
+        supabase.auth.set_session(access_token=token, refresh_token=None)
+        
+        supabase.auth.update_user({"password": request.new_password})
+        return {"message": "Password has been reset successfully."}
+    except Exception as e:
+        print(f"Reset password error: {e}")
+        raise HTTPException(status_code=400, detail=f"Failed to reset password: {str(e)}")
