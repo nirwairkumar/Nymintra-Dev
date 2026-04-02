@@ -90,11 +90,11 @@ export default function Home() {
             className="flex flex-col items-center space-y-8 text-center"
           >
             <motion.div variants={fadeInUp} className="space-y-4 max-w-3xl">
-              <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl md:text-7xl lg:text-8xl/none text-foreground font-serif drop-shadow-sm">
+              <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl md:text-7xl lg:text-8xl/none text-foreground font-stylish drop-shadow-sm">
                 {t('home.heroTitle1')} <br />
-                <span className="text-primary italic font-light drop-shadow-md">{t('home.heroTitle2')}</span>
+                <span className="text-primary font-cursive font-light drop-shadow-md">{t('home.heroTitle2')}</span>
               </h1>
-              <p className="mx-auto max-w-[700px] text-muted-foreground md:text-xl lg:text-2xl font-sans mt-6 font-medium leading-relaxed">
+              <p className="mx-auto max-w-[700px] text-muted-foreground md:text-xl lg:text-2xl font-premium mt-6 font-medium leading-relaxed">
                 {t('home.heroSubtitle')}
               </p>
             </motion.div>
@@ -102,13 +102,13 @@ export default function Home() {
             <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row gap-4 min-w-[200px] mt-8 pt-4">
               <Link
                 to="/cards"
-                className="inline-flex h-14 items-center justify-center rounded-full bg-primary px-10 text-lg font-medium text-primary-foreground shadow-lg shadow-primary/30 transition-all hover:scale-105 hover:bg-primary/90 hover:shadow-primary/50 focus-visible:outline-none"
+                className="inline-flex h-14 items-center justify-center rounded-full bg-primary px-10 text-lg font-bold font-premium text-primary-foreground shadow-lg shadow-primary/30 transition-all hover:scale-105 hover:bg-primary/90 hover:shadow-primary/50 focus-visible:outline-none"
               >
                 {t('home.ctaDesign')}
               </Link>
               <Link
                 to="/how-it-works"
-                className="inline-flex h-14 items-center justify-center rounded-full border-2 border-primary/20 bg-background/50 backdrop-blur-sm px-10 text-lg font-medium shadow-sm transition-all hover:bg-secondary/10 hover:border-secondary/50 focus-visible:outline-none"
+                className="inline-flex h-14 items-center justify-center rounded-full border-2 border-primary/20 bg-background/50 backdrop-blur-sm px-10 text-lg font-bold font-premium shadow-sm transition-all hover:bg-secondary/10 hover:border-secondary/50 focus-visible:outline-none"
               >
                 {t('home.ctaHow')}
               </Link>
@@ -127,7 +127,7 @@ export default function Home() {
             variants={staggerContainer}
             className="flex flex-col items-center justify-center space-y-4 text-center mb-16"
           >
-            <motion.h2 variants={fadeInUp} className="text-3xl font-bold tracking-tighter sm:text-5xl text-foreground font-serif">
+            <motion.h2 variants={fadeInUp} className="text-3xl font-bold tracking-tighter sm:text-5xl text-foreground font-stylish">
               {t('home.categoriesTitle')}
             </motion.h2>
             <motion.div variants={fadeInUp} className="h-1.5 w-24 bg-gradient-to-r from-primary to-secondary rounded-full" />
@@ -151,8 +151,8 @@ export default function Home() {
                     {cat.icon}
                   </div>
                   <div className="relative z-10">
-                    <h3 className={`font-serif font-bold text-2xl mb-2 ${cat.text}`}>{cat.name}</h3>
-                    <p className="text-sm text-muted-foreground">{cat.desc}</p>
+                    <h3 className={`font-bold text-2xl mb-2 ${cat.text} font-stylish`}>{cat.name}</h3>
+                    <p className="text-sm text-muted-foreground font-premium">{cat.desc}</p>
                   </div>
                 </Link>
               </motion.div>
@@ -175,22 +175,22 @@ export default function Home() {
               variants={staggerContainer}
               className="space-y-6"
             >
-              <motion.h2 variants={fadeInUp} className="text-3xl font-bold tracking-tighter sm:text-5xl md:text-6xl font-serif text-white">
-                {t('home.workflowTitle')} <span className="text-secondary italic">{t('home.workflowTitleHighlight')}</span>
+              <motion.h2 variants={fadeInUp} className="text-3xl font-bold tracking-tighter sm:text-5xl md:text-6xl font-stylish text-white">
+                {t('home.workflowTitle')} <span className="text-secondary italic font-cursive">{t('home.workflowTitleHighlight')}</span>
               </motion.h2>
-              <motion.p variants={fadeInUp} className="max-w-[600px] text-lg md:text-xl/relaxed text-white/80 font-light">
+              <motion.p variants={fadeInUp} className="max-w-[600px] text-lg md:text-xl/relaxed text-white/80 font-premium">
                 {t('home.workflowSubtitle')}
               </motion.p>
 
               <motion.ul variants={staggerContainer} className="grid gap-8 mt-12">
                 {steps.map((step, i) => (
                   <motion.li variants={fadeInUp} key={i} className="flex items-start gap-6 group">
-                    <div className="flex h-14 w-14 items-center justify-center rounded-full bg-secondary text-secondary-foreground font-serif text-xl font-bold shrink-0 shadow-lg group-hover:scale-110 transition-transform duration-300">
+                    <div className="flex h-14 w-14 items-center justify-center rounded-full bg-secondary text-secondary-foreground font-stylish text-xl font-bold shrink-0 shadow-lg group-hover:scale-110 transition-transform duration-300">
                       {i + 1}
                     </div>
                     <div className="mt-1">
-                      <h3 className="font-semibold text-xl text-white mb-2">{step.title}</h3>
-                      <p className="text-white/70 text-base leading-relaxed">{step.desc}</p>
+                      <h3 className="font-semibold text-xl text-white mb-2 font-stylish">{step.title}</h3>
+                      <p className="text-white/70 text-base leading-relaxed font-premium">{step.desc}</p>
                     </div>
                   </motion.li>
                 ))}

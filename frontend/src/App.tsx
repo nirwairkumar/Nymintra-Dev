@@ -59,16 +59,16 @@ const AppLayout = () => {
         </Suspense>
       </main>
 
-      <footer className="border-t py-16 bg-background mt-auto">
+      <footer className="border-t py-16 bg-background mt-auto font-premium">
         <div className="container mx-auto px-4 max-w-7xl grid grid-cols-1 md:grid-cols-4 gap-12">
           <div>
-            <span className="font-serif text-3xl font-bold text-primary">Nymintra</span>
+            <span className="font-serif text-3xl font-bold text-primary font-stylish">Nymintra</span>
             <p className="mt-6 text-base text-muted-foreground leading-relaxed">
               {t('footer.tagline')}
             </p>
           </div>
           <div>
-            <h4 className="font-semibold text-foreground mb-6 font-serif text-lg tracking-wide uppercase text-secondary">{t('footer.categories')}</h4>
+            <h4 className="font-semibold text-foreground mb-6 font-serif text-lg tracking-wide uppercase text-secondary font-stylish">{t('footer.categories')}</h4>
             <ul className="space-y-4 text-base text-muted-foreground">
               <li><Link to="/cards" className="hover:text-primary transition-colors">{t('footer.weddingCards')}</Link></li>
               <li><Link to="/cards" className="hover:text-primary transition-colors">{t('footer.engagementCards')}</Link></li>
@@ -76,7 +76,7 @@ const AppLayout = () => {
             </ul>
           </div>
           <div>
-            <h4 className="font-semibold text-foreground mb-6 font-serif text-lg tracking-wide uppercase text-secondary">{t('footer.support')}</h4>
+            <h4 className="font-semibold text-foreground mb-6 font-serif text-lg tracking-wide uppercase text-secondary font-stylish">{t('footer.support')}</h4>
             <ul className="space-y-4 text-base text-muted-foreground">
               <li><Link to="/faq" className="hover:text-primary transition-colors">{t('footer.faq')}</Link></li>
               <li><Link to="/contact" className="hover:text-primary transition-colors">{t('footer.contactUs')}</Link></li>
@@ -84,7 +84,7 @@ const AppLayout = () => {
             </ul>
           </div>
           <div>
-            <h4 className="font-semibold text-foreground mb-6 font-serif text-lg tracking-wide uppercase text-secondary">{t('footer.connect')}</h4>
+            <h4 className="font-semibold text-foreground mb-6 font-serif text-lg tracking-wide uppercase text-secondary font-stylish">{t('footer.connect')}</h4>
             <p className="text-base text-muted-foreground mb-6">{t('footer.followUs')}</p>
           </div>
         </div>

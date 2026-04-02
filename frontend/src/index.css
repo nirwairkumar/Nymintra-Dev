@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Rozha+One&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Rozha+One&family=Kalam:wght@300;400;700&family=Tiro+Devanagari+Hindi:ital@0;1&family=Inknut+Antiqua:wght@400;500;700;900&display=swap');
 @import "tailwindcss";
 @plugin "tailwindcss-animate";
 
@@ -74,6 +74,8 @@
   --font-serif: 'Playfair Display', serif;
   --font-sans: 'Inter', sans-serif;
   --font-hindi: 'Noto Sans Devanagari', sans-serif;
+  --font-cursive: 'Kalam', cursive;
+  --font-stylish: 'Inknut Antiqua', serif;
 }
 
 @layer base {
@@ -100,5 +102,35 @@
   html[lang="hi"] .font-serif {
     font-family: 'Rozha One', 'Playfair Display', serif;
     font-weight: 400; /* Rozha One is typically single-weight */
+  }
+
+  /* Decorative cursive font class */
+  .font-cursive {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+  }
+  
+  html[lang="hi"] .font-cursive {
+    font-family: 'Kalam', cursive;
+    font-style: normal;
+  }
+
+  /* Stylish manuscript font class */
+  .font-stylish {
+    font-family: 'Playfair Display', serif;
+  }
+
+  html[lang="hi"] .font-stylish {
+    font-family: 'Inknut Antiqua', serif;
+  }
+
+  /* Premium body/subtitle font class */
+  .font-premium {
+    font-family: 'Inter', sans-serif;
+  }
+
+  html[lang="hi"] .font-premium {
+    font-family: 'Tiro Devanagari Hindi', serif;
+    @apply leading-relaxed;
   }
 }
