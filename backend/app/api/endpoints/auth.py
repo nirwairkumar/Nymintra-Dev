@@ -173,7 +173,7 @@ def reset_password(request: ResetPasswordConfirm, token: str = Depends(oauth2_sc
     try:
         # We MUST set the session for the client so it knows which user to update.
         # The token is the recovery token sent from the frontend.
-        supabase.auth.set_session(access_token=token, refresh_token=None)
+        supabase.auth.set_session(access_token=token, refresh_token="")
         
         supabase.auth.update_user({"password": request.new_password})
         return {"message": "Password has been reset successfully."}

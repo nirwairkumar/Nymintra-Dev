@@ -47,9 +47,13 @@ export default function ResetPasswordPage() {
         }
 
         const accessToken = params.get('access_token');
+        const refreshToken = params.get('refresh_token');
         if (accessToken) {
-            // Set the cookie so subsequent API calls use this token
+            // Set the cookies so subsequent API calls use these tokens
             Cookies.set('access_token', accessToken, { expires: 1/24, path: '/' }); // 1 hour expiration
+            if (refreshToken) {
+                Cookies.set('refresh_token', refreshToken, { expires: 1/24, path: '/' });
+            }
         } else {
             // Check if we already have a token in cookies
             const token = Cookies.get('access_token');
